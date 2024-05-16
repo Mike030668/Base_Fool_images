@@ -51,6 +51,7 @@ class Make_game:
             return 'human'
 
 
+
     def display_game_state(self, players, game_field, bita, playdeck, trump, show=False):
         """
         Displays the current state of the game using matplotlib.
@@ -65,68 +66,56 @@ class Make_game:
         """
         fig, ax = plt.subplots(figsize=(14, 8))
 
-        # Define the positions
-        human_y = 0
-        robot_y = 6
-        game_field_y = 3
-        deck_x = 8
-        discard_x_start = 10
+        # Define the grid positions
+        grid = {'human': (0, 0), 'robot': (6, 0), 'game_field': (3, 4), 'deck': (3, 8), 'discard': (3, 10)}
         card_width = 1.2
         card_height = 1.8
-        padding_x = 0.2
-        padding_y = 0.2
+        padding = 0.1
 
         def display_cards(cards, start_x, start_y, rows=1, cols=6, show_back=False):
-            print(f"Displaying {len(cards)} cards at position ({start_x}, {start_y})")
             for i, card in enumerate(cards):
                 card_file = os.path.join(self.IMG_PATH, "back.png" if show_back else f"{card[2]}.png")
-                print(f"Loading card image from {card_file}")
                 if os.path.exists(card_file):
                     img = mpimg.imread(card_file)
                     row = i // cols
                     col = i % cols
-                    x0 = start_x + col * (card_width + padding_x)
+                    x0 = start_x + col * (card_width + padding)
                     x1 = x0 + card_width
-                    y0 = start_y + row * (card_height + padding_y)
+                    y0 = start_y - row * (card_height + padding)
                     y1 = y0 + card_height
                     ax.imshow(img, extent=[x0, x1, y0, y1])
-                    print(f"Card image {card_file} added to plot at {[x0, x1, y0, y1]}")
                 else:
                     print(f"Image file {card_file} not found")
 
-        # Display human player cards (bottom row)
+        # Display human player cards
         human_cards = self.show_cards(players[0], show=show)
-        display_cards(human_cards, 0, human_y)
+        display_cards(human_cards, *grid['human'])
 
-        # Display robot player cards (top row, face down)
+        # Display robot player cards (face down)
         robot_cards = self.show_cards(players[1], show=False)
-        display_cards(robot_cards, 0, robot_y, show_back=True)
+        display_cards(robot_cards, *grid['robot'], show_back=False)
 
-        # Display game field (middle row)
+        # Display game field cards
         game_cards = self.show_cards(game_field, show=show)
-        display_cards(game_cards, 4, game_field_y)  # Centering game field cards
+        display_cards(game_cards, *grid['game_field'])
 
-        # Display discard pile (middle row, to the right of the game field)
+        # Display discard pile cards
         bita_cards = self.show_cards(bita, show=show)
-        display_cards(bita_cards, discard_x_start, game_field_y)
+        display_cards(bita_cards, *grid['discard'])
 
-        # Display deck (middle row, to the right of the discard pile)
+        # Display deck card
         deck_img_path = os.path.join(self.IMG_PATH, "back.png")
-        print(f"Loading deck image from {deck_img_path}")
         if os.path.exists(deck_img_path):
             deck_img = mpimg.imread(deck_img_path)
-            ax.imshow(deck_img, extent=[deck_x, deck_x + card_width, game_field_y, game_field_y + card_height])
-            print(f"Deck image {deck_img_path} added to plot at {[deck_x, deck_x + card_width, game_field_y, game_field_y + card_height]}")
+            ax.imshow(deck_img, extent=[grid['deck'][0], grid['deck'][0] + card_width, grid['deck'][1], grid['deck'][1] + card_height])
         else:
             print(f"Deck image file {deck_img_path} not found")
 
-        # Display trump card (middle row, to the right of the deck)
+        # Display trump card
         trump_img_path = os.path.join(self.IMG_PATH, f"{trump}.png")
-        print(f"Loading trump image from {trump_img_path}")
         if os.path.exists(trump_img_path):
             trump_img = mpimg.imread(trump_img_path)
-            ax.imshow(trump_img, extent=[deck_x + card_width + padding_x, deck_x + 2 * card_width + padding_x, game_field_y, game_field_y + card_height])
-            print(f"Trump image {trump_img_path} added to plot at {[deck_x + card_width + padding_x, deck_x + 2 * card_width + padding_x, game_field_y, game_field_y + card_height]}")
+            ax.imshow(trump_img, extent=[grid['deck'][0] + card_width + padding, grid['deck'][0] + 2 * card_width + padding, grid['deck'][1], grid['deck'][1] + card_height])
         else:
             print(f"Trump image file {trump_img_path} not found")
 
