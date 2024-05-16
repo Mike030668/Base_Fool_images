@@ -51,6 +51,7 @@ class Make_game:
             return 'human'
 
 
+
     def display_game_state(self, players, game_field, bita, playdeck, trump, show=False):
         """
         Displays the current state of the game using matplotlib.
@@ -73,7 +74,11 @@ class Make_game:
                     img = mpimg.imread(card_file)
                     row = i // cols
                     col = i % cols
-                    ax = fig.add_subplot(grid[grid_pos[0] + row, grid_pos[1] + col])
+                    x0 = grid_pos[1] + col * 1.0
+                    x1 = x0 + 1.0
+                    y0 = grid_pos[0] + row * 1.5
+                    y1 = y0 + 1.5
+                    ax = fig.add_subplot(grid[int(y0):int(y1), int(x0):int(x1)])
                     ax.imshow(img)
                     ax.axis('off')
                 else:
@@ -85,15 +90,15 @@ class Make_game:
 
         # Display robot player cards (face down)
         robot_cards = self.show_cards(players[1], show=False)
-        display_cards(robot_cards, (0, 0), rows=1, cols=6, show_back=False)
+        display_cards(robot_cards, (0, 0), rows=1, cols=6, show_back=True)
 
         # Display game field cards
         game_cards = self.show_cards(game_field, show=show)
-        display_cards(game_cards, (3, 4), rows=1, cols=6)
+        display_cards(game_cards, (3, 3), rows=1, cols=6)
 
         # Display discard pile cards
         bita_cards = self.show_cards(bita, show=show)
-        display_cards(bita_cards, (3, 10), rows=1, cols=6)
+        display_cards(bita_cards, (3, 9), rows=1, cols=3)
 
         # Display deck card
         deck_img_path = os.path.join(self.IMG_PATH, "back.png")
