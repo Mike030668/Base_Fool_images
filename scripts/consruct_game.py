@@ -51,7 +51,7 @@ class Make_game:
             return 'human'
 
 
-    def display_game_state(self, players, game_field, bita, playdeck, trump, show = False):
+    def display_game_state(self, players, game_field, bita, playdeck, trump, show=False):
         """
         Displays the current state of the game using matplotlib.
 
@@ -61,6 +61,7 @@ class Make_game:
         bita (DataFrame): Discard pile.
         playdeck (DataFrame): Current deck of cards.
         trump (str): Current trump suit.
+        show (bool): Show the cards to the player (default is False).
         """
         fig, ax = plt.subplots(figsize=(14, 8))
 
@@ -73,15 +74,17 @@ class Make_game:
         card_width = 1.2
         card_height = 1.8
 
-        def display_cards(cards, start_x, start_y, show_back=False):
+        def display_cards(cards, start_x, start_y, rows=1, cols=6, show_back=False):
             print(f"Displaying {len(cards)} cards at position ({start_x}, {start_y})")
             for i, card in enumerate(cards):
                 card_file = os.path.join(self.IMG_PATH, "back.png" if show_back else f"{card[2]}.png")
                 print(f"Loading card image from {card_file}")
                 if os.path.exists(card_file):
                     img = mpimg.imread(card_file)
-                    ax.imshow(img, extent=[start_x + i * card_width, start_x + (i + 1) * card_width, start_y, start_y + card_height])
-                    print(f"Card image {card_file} added to plot at {[start_x + i * card_width, start_x + (i + 1) * card_width, start_y, start_y + card_height]}")
+                    row = i // cols
+                    col = i % cols
+                    ax.imshow(img, extent=[start_x + col * card_width, start_x + (col + 1) * card_width, start_y + row * card_height, start_y + (row + 1) * card_height])
+                    print(f"Card image {card_file} added to plot at {[start_x + col * card_width, start_x + (col + 1) * card_width, start_y + row * card_height, start_y + (row + 1) * card_height]}")
                 else:
                     print(f"Image file {card_file} not found")
 
@@ -90,8 +93,8 @@ class Make_game:
         display_cards(human_cards, 0, human_y)
 
         # Display robot player cards (top row, face down)
-        robot_cards = self.show_cards(players[1], show=show)
-        display_cards(robot_cards, 0, robot_y, show_back=show)
+        robot_cards = self.show_cards(players[1], show=False)
+        display_cards(robot_cards, 0, robot_y, show_back=True)
 
         # Display game field (middle row)
         game_cards = self.show_cards(game_field, show=show)
