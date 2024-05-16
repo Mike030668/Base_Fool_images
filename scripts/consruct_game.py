@@ -264,7 +264,7 @@ class Make_game:
             if style == 'min':
                 return self.min_card(vibor, value_card)
             if style == 'rand':
-                return self.random_card(vibor, value_card)
+                return Razdaza.random_card(vibor, value_card)
 
     def min_card(self, vibor, value_card=0):
         """
