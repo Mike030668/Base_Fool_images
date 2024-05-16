@@ -52,6 +52,7 @@ class Make_game:
 
 
 
+
     def display_game_state(self, players, game_field, bita, playdeck, trump, show=False):
         """
         Displays the current state of the game using matplotlib.
@@ -141,6 +142,7 @@ class Make_game:
                 display(Image(filename=card_file))
 
         return for_choose
+
 
 
 
