@@ -65,8 +65,8 @@ class Make_game:
 
         # Define the positions
         human_y = 0
-        robot_y = 8
-        game_field_y = 4
+        robot_y = 6
+        game_field_y = 3
         deck_x = 8
         discard_x_start = 10
         card_width = 1.2
@@ -80,6 +80,7 @@ class Make_game:
                 if os.path.exists(card_file):
                     img = mpimg.imread(card_file)
                     ax.imshow(img, extent=[start_x + i * card_width, start_x + (i + 1) * card_width, start_y, start_y + card_height])
+                    print(f"Card image {card_file} added to plot at {[start_x + i * card_width, start_x + (i + 1) * card_width, start_y, start_y + card_height]}")
                 else:
                     print(f"Image file {card_file} not found")
 
@@ -105,6 +106,7 @@ class Make_game:
         if os.path.exists(deck_img_path):
             deck_img = mpimg.imread(deck_img_path)
             ax.imshow(deck_img, extent=[deck_x, deck_x + card_width, game_field_y, game_field_y + card_height])
+            print(f"Deck image {deck_img_path} added to plot at {[deck_x, deck_x + card_width, game_field_y, game_field_y + card_height]}")
         else:
             print(f"Deck image file {deck_img_path} not found")
 
@@ -114,6 +116,7 @@ class Make_game:
         if os.path.exists(trump_img_path):
             trump_img = mpimg.imread(trump_img_path)
             ax.imshow(trump_img, extent=[deck_x + card_width, deck_x + 2 * card_width, game_field_y, game_field_y + card_height])
+            print(f"Trump image {trump_img_path} added to plot at {[deck_x + card_width, deck_x + 2 * card_width, game_field_y, game_field_y + card_height]}")
         else:
             print(f"Trump image file {trump_img_path} not found")
 
@@ -148,6 +151,7 @@ class Make_game:
                 display(Image(filename=card_file))
 
         return for_choose
+
 
 
 
