@@ -1,10 +1,15 @@
-import random
-import numpy as np
-import pandas as pd
-
 from IPython.display import Image, display
 
 from scripts.elements_gane import Razdaza, Make_players
+
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+from IPython.display import Image, display
+import numpy as np
+import pandas as pd
+import random
+import os
+
 class Make_game:
     def __init__(self,
                  cards4player,
@@ -104,6 +109,57 @@ class Make_game:
                 display(Image(filename=card_file))
 
         return for_choose
+
+    def display_game_state(self, players, game_field, bita, playdeck, trump):
+        """
+        Displays the current state of the game using matplotlib.
+
+        Parameters:
+        players (list): List of players.
+        game_field (DataFrame): Current game field.
+        bita (DataFrame): Discard pile.
+        playdeck (DataFrame): Current deck of cards.
+        trump (str): Current trump suit.
+        """
+        fig, ax = plt.subplots(figsize=(12, 8))
+        
+        # Display human player cards
+        human_cards = self.show_cards(players[0], show=False)
+        for i, card in enumerate(human_cards):
+            card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
+            img = mpimg.imread(card_file)
+            ax.imshow(img, extent=[i, i+1, 0, 1])
+
+        # Display robot player cards
+        robot_cards = self.show_cards(players[1], show=False)
+        for i, card in enumerate(robot_cards):
+            card_file = os.path.join(self.IMG_PATH, "back.png")  # Use back.png for robot cards
+            img = mpimg.imread(card_file)
+            ax.imshow(img, extent=[i, i+1, 2, 3])
+
+        # Display game field
+        game_cards = self.show_cards(game_field, show=False)
+        for i, card in enumerate(game_cards):
+            card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
+            img = mpimg.imread(card_file)
+            ax.imshow(img, extent=[i, i+1, 4, 5])
+
+        # Display discard pile
+        bita_cards = self.show_cards(bita, show=False)
+        for i, card in enumerate(bita_cards):
+            card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
+            img = mpimg.imread(card_file)
+            ax.imshow(img, extent=[i, i+1, 6, 7])
+
+        # Display deck and trump
+        deck_img = mpimg.imread(os.path.join(self.IMG_PATH, "back.png"))
+        ax.imshow(deck_img, extent=[7, 8, 4, 5])
+        trump_img = mpimg.imread(os.path.join(self.IMG_PATH, f"{trump}.png"))
+        ax.imshow(trump_img, extent=[8, 9, 4, 5])
+
+        # Hide axes
+        ax.axis('off')
+        plt.show()
 
     def vibor_card(self, df, value):
         """
@@ -208,7 +264,7 @@ class Make_game:
             if style == 'min':
                 return self.min_card(vibor, value_card)
             if style == 'rand':
-                return Razdaza.random_card(self, vibor, value_card)
+                return self.random_card(vibor, value_card)
 
     def min_card(self, vibor, value_card=0):
         """
