@@ -50,6 +50,7 @@ class Make_game:
         else:
             return 'human'
 
+
     def display_game_state(self, players, game_field, bita, playdeck, trump):
         """
         Displays the current state of the game using matplotlib.
@@ -151,8 +152,6 @@ class Make_game:
                 display(Image(filename=card_file))
 
         return for_choose
-
-
 
 
     def random_card(self, vibor, value_card=0):
