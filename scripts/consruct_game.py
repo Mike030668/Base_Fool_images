@@ -73,10 +73,15 @@ class Make_game:
         card_height = 1.8
 
         def display_cards(cards, start_x, start_y, show_back=False):
+            print(f"Displaying {len(cards)} cards at position ({start_x}, {start_y})")
             for i, card in enumerate(cards):
+                print(f"Card: {card[2]} at position {i}")
                 card_file = os.path.join(self.IMG_PATH, "back.png" if show_back else f"{card[2]}.png")
-                img = mpimg.imread(card_file)
-                ax.imshow(img, extent=[start_x + i * card_width, start_x + (i + 1) * card_width, start_y, start_y + card_height])
+                if os.path.exists(card_file):
+                    img = mpimg.imread(card_file)
+                    ax.imshow(img, extent=[start_x + i * card_width, start_x + (i + 1) * card_width, start_y, start_y + card_height])
+                else:
+                    print(f"Image file {card_file} not found")
 
         # Display human player cards (bottom row)
         human_cards = self.show_cards(players[0], show=False)
@@ -133,6 +138,7 @@ class Make_game:
                 display(Image(filename=card_file))
 
         return for_choose
+
 
 
 
