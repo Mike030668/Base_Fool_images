@@ -74,12 +74,12 @@ class Make_game:
                     img = mpimg.imread(card_file)
                     row = i // cols
                     col = i % cols
-                    x0 = grid_pos[1] + col * 1.0
+                    x0 = grid_pos[1] + col
                     x1 = x0 + 1.0
                     y0 = grid_pos[0] + row * 1.5
                     y1 = y0 + 1.5
                     ax = fig.add_subplot(grid[int(y0):int(y1), int(x0):int(x1)])
-                    ax.imshow(img)
+                    ax.imshow(img, extent=[x0, x1, y0, y1])
                     ax.axis('off')
                 else:
                     print(f"Image file {card_file} not found")
@@ -105,7 +105,7 @@ class Make_game:
         if os.path.exists(deck_img_path):
             deck_img = mpimg.imread(deck_img_path)
             ax = fig.add_subplot(grid[3, 8])
-            ax.imshow(deck_img)
+            ax.imshow(deck_img, extent=[8, 9, 3, 4.5])
             ax.axis('off')
         else:
             print(f"Deck image file {deck_img_path} not found")
@@ -115,7 +115,7 @@ class Make_game:
         if os.path.exists(trump_img_path):
             trump_img = mpimg.imread(trump_img_path)
             ax = fig.add_subplot(grid[3, 9])
-            ax.imshow(trump_img)
+            ax.imshow(trump_img, extent=[9, 10, 3, 4.5])
             ax.axis('off')
         else:
             print(f"Trump image file {trump_img_path} not found")
