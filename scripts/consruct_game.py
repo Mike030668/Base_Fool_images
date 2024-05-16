@@ -10,6 +10,14 @@ import pandas as pd
 import random
 import os
 
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+from IPython.display import display
+import numpy as np
+import pandas as pd
+import random
+import os
+
 class Make_game:
     def __init__(self,
                  cards4player,
@@ -161,6 +169,22 @@ class Make_game:
         ax.axis('off')
         plt.show()
 
+    def random_card(self, vibor, value_card=0):
+        """
+        Determines a random card from available choices.
+
+        Parameters:
+        vibor (DataFrame): Available cards.
+        value_card (int): Card value (default is 0).
+
+        Returns:
+        tuple: Suit and rank of the selected card.
+        """
+        vibor_ = vibor.to_numpy()
+        idx, jdx = np.where(vibor_ > value_card)
+        i = random.randint(0, len(idx) - 1)
+        return vibor.index[idx[i]], vibor.columns[jdx[i]]
+
     def vibor_card(self, df, value):
         """
         Determines the possible list of cards for selection.
@@ -264,7 +288,7 @@ class Make_game:
             if style == 'min':
                 return self.min_card(vibor, value_card)
             if style == 'rand':
-                return Razdaza.random_card(vibor, value_card)
+                return self.random_card(vibor, value_card)
 
     def min_card(self, vibor, value_card=0):
         """
@@ -457,6 +481,7 @@ class Make_game:
             print(df.name)
             print(df.head(10).to_string())
             print()
+
 
 
 class Durack:
