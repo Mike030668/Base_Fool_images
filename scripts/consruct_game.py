@@ -1,18 +1,8 @@
-from IPython.display import Image, display
-
 from scripts.elements_gane import Razdaza, Make_players
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from IPython.display import Image, display
-import numpy as np
-import pandas as pd
-import random
-import os
-
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-from IPython.display import display
 import numpy as np
 import pandas as pd
 import random
@@ -118,60 +108,58 @@ class Make_game:
 
         return for_choose
 
+    def display_game_state(self, players, game_field, bita, playdeck, trump):
+        """
+        Displays the current state of the game using matplotlib.
 
-def display_game_state(self, players, game_field, bita, playdeck, trump):
-    """
-    Displays the current state of the game using matplotlib.
+        Parameters:
+        players (list): List of players.
+        game_field (DataFrame): Current game field.
+        bita (DataFrame): Discard pile.
+        playdeck (DataFrame): Current deck of cards.
+        trump (str): Current trump suit.
+        """
+        fig, ax = plt.subplots(figsize=(12, 8))
 
-    Parameters:
-    players (list): List of players.
-    game_field (DataFrame): Current game field.
-    bita (DataFrame): Discard pile.
-    playdeck (DataFrame): Current deck of cards.
-    trump (str): Current trump suit.
-    """
-    fig, ax = plt.subplots(figsize=(12, 8))
+        # Display human player cards (bottom row)
+        human_cards = self.show_cards(players[0], show=False)
+        for i, card in enumerate(human_cards):
+            card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
+            img = mpimg.imread(card_file)
+            ax.imshow(img, extent=[i, i+1, 0, 1])
 
-    # Display human player cards (bottom row)
-    human_cards = self.show_cards(players[0], show=False)
-    for i, card in enumerate(human_cards):
-        card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
-        img = mpimg.imread(card_file)
-        ax.imshow(img, extent=[i, i+1, 0, 1])
+        # Display robot player cards (top row, face down)
+        robot_cards = self.show_cards(players[1], show=False)
+        for i, card in enumerate(robot_cards):
+            card_file = os.path.join(self.IMG_PATH, "back.png")  # Use back.png for robot cards
+            img = mpimg.imread(card_file)
+            ax.imshow(img, extent=[i, i+1, 6, 7])
 
-    # Display robot player cards (top row, face down)
-    robot_cards = self.show_cards(players[1], show=False)
-    for i, card in enumerate(robot_cards):
-        card_file = os.path.join(self.IMG_PATH, "back.png")  # Use back.png for robot cards
-        img = mpimg.imread(card_file)
-        ax.imshow(img, extent=[i, i+1, 6, 7])
+        # Display game field (middle row)
+        game_cards = self.show_cards(game_field, show=False)
+        for i, card in enumerate(game_cards):
+            card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
+            img = mpimg.imread(card_file)
+            ax.imshow(img, extent=[i, i+1, 3, 4])
 
-    # Display game field (middle row)
-    game_cards = self.show_cards(game_field, show=False)
-    for i, card in enumerate(game_cards):
-        card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
-        img = mpimg.imread(card_file)
-        ax.imshow(img, extent=[i, i+1, 3, 4])
+        # Display discard pile (middle row, to the right of the game field)
+        bita_cards = self.show_cards(bita, show=False)
+        for i, card in enumerate(bita_cards):
+            card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
+            img = mpimg.imread(card_file)
+            ax.imshow(img, extent=[len(game_cards) + i, len(game_cards) + i + 1, 3, 4])
 
-    # Display discard pile (middle row, to the right of the game field)
-    bita_cards = self.show_cards(bita, show=False)
-    for i, card in enumerate(bita_cards):
-        card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
-        img = mpimg.imread(card_file)
-        ax.imshow(img, extent=[len(game_cards) + i, len(game_cards) + i + 1, 3, 4])
+        # Display deck (top row, to the right of the robot cards)
+        deck_img = mpimg.imread(os.path.join(self.IMG_PATH, "back.png"))
+        ax.imshow(deck_img, extent=[len(robot_cards), len(robot_cards) + 1, 6, 7])
 
-    # Display deck (top row, to the right of the robot cards)
-    deck_img = mpimg.imread(os.path.join(self.IMG_PATH, "back.png"))
-    ax.imshow(deck_img, extent=[len(robot_cards), len(robot_cards) + 1, 6, 7])
+        # Display trump card (top row, to the right of the deck)
+        trump_img = mpimg.imread(os.path.join(self.IMG_PATH, f"{trump}.png"))
+        ax.imshow(trump_img, extent=[len(robot_cards) + 1, len(robot_cards) + 2, 6, 7])
 
-    # Display trump card (top row, to the right of the deck)
-    trump_img = mpimg.imread(os.path.join(self.IMG_PATH, f"{trump}.png"))
-    ax.imshow(trump_img, extent=[len(robot_cards) + 1, len(robot_cards) + 2, 6, 7])
-
-    # Hide axes
-    ax.axis('off')
-    plt.show()
-
+        # Hide axes
+        ax.axis('off')
+        plt.show()
 
     def random_card(self, vibor, value_card=0):
         """
@@ -488,6 +476,7 @@ def display_game_state(self, players, game_field, bita, playdeck, trump):
 
 
 
+
 class Durack:
     def __init__(self,
                  cards4player=None,
@@ -527,13 +516,13 @@ class Durack:
         self.__MIN_PLAYERS = 2
 
         # Creation of the game launch method with current game values
-        self.go_game = Make_game(self.__CARDS_4PLAYER,
-                                 self.__MUSTY,
-                                 self.__TYPECARD_KEYS,
-                                 self.__IDX_MUSTY,
-                                 self.__IDX_TYPECARDS,
-                                 self.__base_deck,
-                                 img_path)
+        self.game_process = Make_game(self.__CARDS_4PLAYER,
+                                      self.__MUSTY,
+                                      self.__TYPECARD_KEYS,
+                                      self.__IDX_MUSTY,
+                                      self.__IDX_TYPECARDS,
+                                      self.__base_deck,
+                                      img_path)
 
     def init_game(self):
         """
@@ -543,8 +532,8 @@ class Durack:
         maker_players = Make_players(self.__CARDS_4PLAYER,
                                      self.__humans,
                                      self.__robots,
-                                     self.__MINCARDS_4PLAYER,
-                                     self.__MAXCARDS_4PLAYER,
+                                     self.__MINCARDS_4PLAER,
+                                     self.__MAXCARDS_4PLAER,
                                      self.__MIN_PLAYERS,
                                      self.__DECK_SIZE,
                                      self.__START_FIELD)
@@ -582,4 +571,3 @@ class Durack:
         print()
 
         return players, PLAY_deck, trump
-
