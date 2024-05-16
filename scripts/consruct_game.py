@@ -121,45 +121,46 @@ class Make_game:
         """
         fig, ax = plt.subplots(figsize=(12, 8))
 
-        # Display human player cards (bottom row)
+        # Human player cards (bottom row)
         human_cards = self.show_cards(players[0], show=False)
         for i, card in enumerate(human_cards):
             card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
             img = mpimg.imread(card_file)
             ax.imshow(img, extent=[i, i+1, 0, 1])
 
-        # Display robot player cards (top row, face down)
+        # Robot player cards (top row, face down)
         robot_cards = self.show_cards(players[1], show=False)
         for i, card in enumerate(robot_cards):
             card_file = os.path.join(self.IMG_PATH, "back.png")  # Use back.png for robot cards
             img = mpimg.imread(card_file)
             ax.imshow(img, extent=[i, i+1, 6, 7])
 
-        # Display game field (middle row)
+        # Game field cards (middle row)
         game_cards = self.show_cards(game_field, show=False)
         for i, card in enumerate(game_cards):
             card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
             img = mpimg.imread(card_file)
             ax.imshow(img, extent=[i, i+1, 3, 4])
 
-        # Display discard pile (middle row, to the right of the game field)
+        # Discard pile (middle row, to the right of the game field)
         bita_cards = self.show_cards(bita, show=False)
         for i, card in enumerate(bita_cards):
             card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
             img = mpimg.imread(card_file)
             ax.imshow(img, extent=[len(game_cards) + i, len(game_cards) + i + 1, 3, 4])
 
-        # Display deck (top row, to the right of the robot cards)
+        # Deck of cards (top row, to the right of the robot cards)
         deck_img = mpimg.imread(os.path.join(self.IMG_PATH, "back.png"))
         ax.imshow(deck_img, extent=[len(robot_cards), len(robot_cards) + 1, 6, 7])
 
-        # Display trump card (top row, to the right of the deck)
+        # Trump card (top row, to the right of the deck)
         trump_img = mpimg.imread(os.path.join(self.IMG_PATH, f"{trump}.png"))
         ax.imshow(trump_img, extent=[len(robot_cards) + 1, len(robot_cards) + 2, 6, 7])
 
         # Hide axes
         ax.axis('off')
         plt.show()
+
 
     def random_card(self, vibor, value_card=0):
         """
@@ -532,8 +533,8 @@ class Durack:
         maker_players = Make_players(self.__CARDS_4PLAYER,
                                      self.__humans,
                                      self.__robots,
-                                     self.__MINCARDS_4PLAER,
-                                     self.__MAXCARDS_4PLAER,
+                                     self.__MINCARDS_4PLAYER,
+                                     self.__MAXCARDS_4PLAYER,
                                      self.__MIN_PLAYERS,
                                      self.__DECK_SIZE,
                                      self.__START_FIELD)
