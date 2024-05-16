@@ -69,54 +69,67 @@ class Make_game:
         return for_choose
 
     def display_game_state(self, players, game_field, bita, playdeck, trump):
+        """
+        Displays the current state of the game using matplotlib.
+
+        Parameters:
+        players (list): List of players.
+        game_field (DataFrame): Current game field.
+        bita (DataFrame): Discard pile.
+        playdeck (DataFrame): Current deck of cards.
+        trump (str): Current trump suit.
+        """
         fig, ax = plt.subplots(figsize=(14, 8))
 
         # Define the positions
         human_y = 1
         robot_y = 6
         game_field_y = 4
-        deck_x = 10
-        discard_x_start = 12
+        deck_x = 8
+        discard_x_start = 10
+        card_width = 1
+        card_height = 1.5
 
         # Display human player cards (bottom row)
         human_cards = self.show_cards(players[0], show=False)
         for i, card in enumerate(human_cards):
             card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
             img = mpimg.imread(card_file)
-            ax.imshow(img, extent=[i, i+1, human_y, human_y + 1])
+            ax.imshow(img, extent=[i * card_width, (i + 1) * card_width, human_y, human_y + card_height])
 
         # Display robot player cards (top row, face down)
         robot_cards = self.show_cards(players[1], show=False)
         for i, card in enumerate(robot_cards):
             card_file = os.path.join(self.IMG_PATH, "back.png")  # Use back.png for robot cards
             img = mpimg.imread(card_file)
-            ax.imshow(img, extent=[i, i+1, robot_y, robot_y + 1])
+            ax.imshow(img, extent=[i * card_width, (i + 1) * card_width, robot_y, robot_y + card_height])
 
         # Display game field (middle row)
         game_cards = self.show_cards(game_field, show=False)
         for i, card in enumerate(game_cards):
             card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
             img = mpimg.imread(card_file)
-            ax.imshow(img, extent=[i, i+1, game_field_y, game_field_y + 1])
+            ax.imshow(img, extent=[i * card_width, (i + 1) * card_width, game_field_y, game_field_y + card_height])
 
         # Display discard pile (middle row, to the right of the game field)
         bita_cards = self.show_cards(bita, show=False)
         for i, card in enumerate(bita_cards):
             card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
             img = mpimg.imread(card_file)
-            ax.imshow(img, extent=[discard_x_start + i, discard_x_start + i + 1, game_field_y, game_field_y + 1])
+            ax.imshow(img, extent=[discard_x_start + i * card_width, discard_x_start + (i + 1) * card_width, game_field_y, game_field_y + card_height])
 
         # Display deck (top row, to the right of the robot cards)
         deck_img = mpimg.imread(os.path.join(self.IMG_PATH, "back.png"))
-        ax.imshow(deck_img, extent=[deck_x, deck_x + 1, game_field_y, game_field_y + 1])
+        ax.imshow(deck_img, extent=[deck_x, deck_x + card_width, game_field_y, game_field_y + card_height])
 
         # Display trump card (top row, to the right of the deck)
         trump_img = mpimg.imread(os.path.join(self.IMG_PATH, f"{trump}.png"))
-        ax.imshow(trump_img, extent=[deck_x + 1, deck_x + 2, game_field_y, game_field_y + 1])
+        ax.imshow(trump_img, extent=[deck_x + card_width, deck_x + 2 * card_width, game_field_y, game_field_y + card_height])
 
         # Hide axes
         ax.axis('off')
         plt.show()
+
 
     def random_card(self, vibor, value_card=0):
         vibor_ = vibor.to_numpy()
