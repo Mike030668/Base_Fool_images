@@ -75,8 +75,8 @@ class Make_game:
         def display_cards(cards, start_x, start_y, show_back=False):
             print(f"Displaying {len(cards)} cards at position ({start_x}, {start_y})")
             for i, card in enumerate(cards):
-                print(f"Card: {card[2]} at position {i}")
                 card_file = os.path.join(self.IMG_PATH, "back.png" if show_back else f"{card[2]}.png")
+                print(f"Loading card image from {card_file}")
                 if os.path.exists(card_file):
                     img = mpimg.imread(card_file)
                     ax.imshow(img, extent=[start_x + i * card_width, start_x + (i + 1) * card_width, start_y, start_y + card_height])
@@ -100,12 +100,22 @@ class Make_game:
         display_cards(bita_cards, discard_x_start, game_field_y)
 
         # Display deck (middle row, to the right of the discard pile)
-        deck_img = mpimg.imread(os.path.join(self.IMG_PATH, "back.png"))
-        ax.imshow(deck_img, extent=[deck_x, deck_x + card_width, game_field_y, game_field_y + card_height])
+        deck_img_path = os.path.join(self.IMG_PATH, "back.png")
+        print(f"Loading deck image from {deck_img_path}")
+        if os.path.exists(deck_img_path):
+            deck_img = mpimg.imread(deck_img_path)
+            ax.imshow(deck_img, extent=[deck_x, deck_x + card_width, game_field_y, game_field_y + card_height])
+        else:
+            print(f"Deck image file {deck_img_path} not found")
 
         # Display trump card (middle row, to the right of the deck)
-        trump_img = mpimg.imread(os.path.join(self.IMG_PATH, f"{trump}.png"))
-        ax.imshow(trump_img, extent=[deck_x + card_width, deck_x + 2 * card_width, game_field_y, game_field_y + card_height])
+        trump_img_path = os.path.join(self.IMG_PATH, f"{trump}.png")
+        print(f"Loading trump image from {trump_img_path}")
+        if os.path.exists(trump_img_path):
+            trump_img = mpimg.imread(trump_img_path)
+            ax.imshow(trump_img, extent=[deck_x + card_width, deck_x + 2 * card_width, game_field_y, game_field_y + card_height])
+        else:
+            print(f"Trump image file {trump_img_path} not found")
 
         # Hide axes
         ax.axis('off')
@@ -138,6 +148,7 @@ class Make_game:
                 display(Image(filename=card_file))
 
         return for_choose
+
 
 
 
