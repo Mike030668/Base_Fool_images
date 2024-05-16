@@ -51,7 +51,7 @@ class Make_game:
             return 'human'
 
 
-    def display_game_state(self, players, game_field, bita, playdeck, trump):
+    def display_game_state(self, players, game_field, bita, playdeck, trump, show = False):
         """
         Displays the current state of the game using matplotlib.
 
@@ -86,19 +86,19 @@ class Make_game:
                     print(f"Image file {card_file} not found")
 
         # Display human player cards (bottom row)
-        human_cards = self.show_cards(players[0], show=False)
+        human_cards = self.show_cards(players[0], show=show)
         display_cards(human_cards, 0, human_y)
 
         # Display robot player cards (top row, face down)
-        robot_cards = self.show_cards(players[1], show=False)
-        display_cards(robot_cards, 0, robot_y, show_back=True)
+        robot_cards = self.show_cards(players[1], show=show)
+        display_cards(robot_cards, 0, robot_y, show_back=show)
 
         # Display game field (middle row)
-        game_cards = self.show_cards(game_field, show=False)
-        display_cards(game_cards, 0, game_field_y)
+        game_cards = self.show_cards(game_field, show=show)
+        display_cards(game_cards, 4, game_field_y)  # Centering game field cards
 
         # Display discard pile (middle row, to the right of the game field)
-        bita_cards = self.show_cards(bita, show=False)
+        bita_cards = self.show_cards(bita, show=show)
         display_cards(bita_cards, discard_x_start, game_field_y)
 
         # Display deck (middle row, to the right of the discard pile)
