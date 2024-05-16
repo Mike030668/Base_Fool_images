@@ -51,7 +51,6 @@ class Make_game:
             return 'human'
 
 
-
     def display_game_state(self, players, game_field, bita, playdeck, trump, show=False):
         """
         Displays the current state of the game using matplotlib.
@@ -64,50 +63,45 @@ class Make_game:
         trump (str): Current trump suit.
         show (bool): Show the cards to the player (default is False).
         """
-        fig, ax = plt.subplots(figsize=(14, 8))
+        fig = plt.figure(figsize=(14, 8))
+        grid = plt.GridSpec(8, 12, wspace=0.1, hspace=0.1)
 
-        # Define the grid positions
-        grid = {'human': (0, 0), 'robot': (6, 0), 'game_field': (3, 4), 'deck': (3, 8), 'discard': (3, 10)}
-        card_width = 1.2
-        card_height = 1.8
-        padding = 0.1
-
-        def display_cards(cards, start_x, start_y, rows=1, cols=6, show_back=False):
+        def display_cards(cards, grid_pos, rows=1, cols=6, show_back=False):
             for i, card in enumerate(cards):
                 card_file = os.path.join(self.IMG_PATH, "back.png" if show_back else f"{card[2]}.png")
                 if os.path.exists(card_file):
                     img = mpimg.imread(card_file)
                     row = i // cols
                     col = i % cols
-                    x0 = start_x + col * (card_width + padding)
-                    x1 = x0 + card_width
-                    y0 = start_y - row * (card_height + padding)
-                    y1 = y0 + card_height
-                    ax.imshow(img, extent=[x0, x1, y0, y1])
+                    ax = fig.add_subplot(grid[grid_pos[0] + row, grid_pos[1] + col])
+                    ax.imshow(img)
+                    ax.axis('off')
                 else:
                     print(f"Image file {card_file} not found")
 
         # Display human player cards
         human_cards = self.show_cards(players[0], show=show)
-        display_cards(human_cards, *grid['human'])
+        display_cards(human_cards, (6, 0), rows=1, cols=6)
 
         # Display robot player cards (face down)
         robot_cards = self.show_cards(players[1], show=False)
-        display_cards(robot_cards, *grid['robot'], show_back=False)
+        display_cards(robot_cards, (0, 0), rows=1, cols=6, show_back=False)
 
         # Display game field cards
         game_cards = self.show_cards(game_field, show=show)
-        display_cards(game_cards, *grid['game_field'])
+        display_cards(game_cards, (3, 4), rows=1, cols=6)
 
         # Display discard pile cards
         bita_cards = self.show_cards(bita, show=show)
-        display_cards(bita_cards, *grid['discard'])
+        display_cards(bita_cards, (3, 10), rows=1, cols=6)
 
         # Display deck card
         deck_img_path = os.path.join(self.IMG_PATH, "back.png")
         if os.path.exists(deck_img_path):
             deck_img = mpimg.imread(deck_img_path)
-            ax.imshow(deck_img, extent=[grid['deck'][0], grid['deck'][0] + card_width, grid['deck'][1], grid['deck'][1] + card_height])
+            ax = fig.add_subplot(grid[3, 8])
+            ax.imshow(deck_img)
+            ax.axis('off')
         else:
             print(f"Deck image file {deck_img_path} not found")
 
@@ -115,12 +109,12 @@ class Make_game:
         trump_img_path = os.path.join(self.IMG_PATH, f"{trump}.png")
         if os.path.exists(trump_img_path):
             trump_img = mpimg.imread(trump_img_path)
-            ax.imshow(trump_img, extent=[grid['deck'][0] + card_width + padding, grid['deck'][0] + 2 * card_width + padding, grid['deck'][1], grid['deck'][1] + card_height])
+            ax = fig.add_subplot(grid[3, 9])
+            ax.imshow(trump_img)
+            ax.axis('off')
         else:
             print(f"Trump image file {trump_img_path} not found")
 
-        # Hide axes
-        ax.axis('off')
         plt.show()
 
     def show_cards(self, player, show=True):
@@ -150,6 +144,7 @@ class Make_game:
                 display(Image(filename=card_file))
 
         return for_choose
+
 
 
     def random_card(self, vibor, value_card=0):
