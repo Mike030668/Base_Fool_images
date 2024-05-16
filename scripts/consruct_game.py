@@ -17,18 +17,6 @@ class Make_game:
                  idx_typecards,
                  startdeck,
                  img_path="images/"):
-        """
-        Class for managing the game process.
-
-        Parameters:
-        cards4player (int): Number of cards per player.
-        suits (list): List of suits.
-        typecard_keys (list): List of card types.
-        idx_suits (ndarray): Indices of suits.
-        idx_typecards (ndarray): Indices of card types.
-        startdeck (DataFrame): Initial deck.
-        img_path (str): Path to the folder containing card images.
-        """
         self.CARDS_4PLAYER = cards4player
         self.SUITS = suits
         self.TYPECARD_KEYS = typecard_keys
@@ -49,15 +37,6 @@ class Make_game:
         self.go_game(players, playdeck, trump)
 
     def make_states(self, players):
-        """
-        Creates an array of player states.
-
-        Parameters:
-        players (list): List of players.
-
-        Returns:
-        ndarray: Array of player states.
-        """
         state_players = []
         for _ in range(len(players)):
             can_step = True
@@ -66,31 +45,12 @@ class Make_game:
         return np.array(state_players)
 
     def get_type(self, player):
-        """
-        Determines the type of player (human or robot).
-
-        Parameters:
-        player (DataFrame): Player.
-
-        Returns:
-        str: Type of player ('human' or 'robot').
-        """
         if player.name.split('_')[0].lower() == 'robot':
             return 'robot'
         else:
             return 'human'
 
     def show_cards(self, player, show=True):
-        """
-        Converts player's DataFrame to a list of cards and displays images.
-
-        Parameters:
-        player (DataFrame): Player.
-        show (bool): Show the cards to the player (default is True).
-
-        Returns:
-        list: List of player's cards.
-        """
         matrix = np.array(player)
         for_choose = []
         for idx_m in range(matrix.shape[0]):
@@ -109,86 +69,62 @@ class Make_game:
         return for_choose
 
     def display_game_state(self, players, game_field, bita, playdeck, trump):
-        """
-        Displays the current state of the game using matplotlib.
+        fig, ax = plt.subplots(figsize=(14, 8))
 
-        Parameters:
-        players (list): List of players.
-        game_field (DataFrame): Current game field.
-        bita (DataFrame): Discard pile.
-        playdeck (DataFrame): Current deck of cards.
-        trump (str): Current trump suit.
-        """
-        fig, ax = plt.subplots(figsize=(12, 8))
+        # Define the positions
+        human_y = 1
+        robot_y = 6
+        game_field_y = 4
+        deck_x = 10
+        discard_x_start = 12
 
-        # Human player cards (bottom row)
+        # Display human player cards (bottom row)
         human_cards = self.show_cards(players[0], show=False)
         for i, card in enumerate(human_cards):
             card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
             img = mpimg.imread(card_file)
-            ax.imshow(img, extent=[i, i+1, 0, 1])
+            ax.imshow(img, extent=[i, i+1, human_y, human_y + 1])
 
-        # Robot player cards (top row, face down)
+        # Display robot player cards (top row, face down)
         robot_cards = self.show_cards(players[1], show=False)
         for i, card in enumerate(robot_cards):
             card_file = os.path.join(self.IMG_PATH, "back.png")  # Use back.png for robot cards
             img = mpimg.imread(card_file)
-            ax.imshow(img, extent=[i, i+1, 6, 7])
+            ax.imshow(img, extent=[i, i+1, robot_y, robot_y + 1])
 
-        # Game field cards (middle row)
+        # Display game field (middle row)
         game_cards = self.show_cards(game_field, show=False)
         for i, card in enumerate(game_cards):
             card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
             img = mpimg.imread(card_file)
-            ax.imshow(img, extent=[i, i+1, 3, 4])
+            ax.imshow(img, extent=[i, i+1, game_field_y, game_field_y + 1])
 
-        # Discard pile (middle row, to the right of the game field)
+        # Display discard pile (middle row, to the right of the game field)
         bita_cards = self.show_cards(bita, show=False)
         for i, card in enumerate(bita_cards):
             card_file = os.path.join(self.IMG_PATH, f"{card[2]}.png")
             img = mpimg.imread(card_file)
-            ax.imshow(img, extent=[len(game_cards) + i, len(game_cards) + i + 1, 3, 4])
+            ax.imshow(img, extent=[discard_x_start + i, discard_x_start + i + 1, game_field_y, game_field_y + 1])
 
-        # Deck of cards (top row, to the right of the robot cards)
+        # Display deck (top row, to the right of the robot cards)
         deck_img = mpimg.imread(os.path.join(self.IMG_PATH, "back.png"))
-        ax.imshow(deck_img, extent=[len(robot_cards), len(robot_cards) + 1, 6, 7])
+        ax.imshow(deck_img, extent=[deck_x, deck_x + 1, game_field_y, game_field_y + 1])
 
-        # Trump card (top row, to the right of the deck)
+        # Display trump card (top row, to the right of the deck)
         trump_img = mpimg.imread(os.path.join(self.IMG_PATH, f"{trump}.png"))
-        ax.imshow(trump_img, extent=[len(robot_cards) + 1, len(robot_cards) + 2, 6, 7])
+        ax.imshow(trump_img, extent=[deck_x + 1, deck_x + 2, game_field_y, game_field_y + 1])
 
         # Hide axes
         ax.axis('off')
         plt.show()
 
-
     def random_card(self, vibor, value_card=0):
-        """
-        Determines a random card from available choices.
-
-        Parameters:
-        vibor (DataFrame): Available cards.
-        value_card (int): Card value (default is 0).
-
-        Returns:
-        tuple: Suit and rank of the selected card.
-        """
         vibor_ = vibor.to_numpy()
         idx, jdx = np.where(vibor_ > value_card)
         i = random.randint(0, len(idx) - 1)
         return vibor.index[idx[i]], vibor.columns[jdx[i]]
 
     def vibor_card(self, df, value):
-        """
-        Determines the possible list of cards for selection.
-
-        Parameters:
-        df (DataFrame): Player's cards.
-        value (int): Card value.
-
-        Returns:
-        DataFrame: Possible cards for selection.
-        """
         if self.GAME_FIELD.sum().sum() == 0:
             vibor = df
         else:
@@ -201,17 +137,6 @@ class Make_game:
         return vibor
 
     def human_step(self, player, qty_card, value_card=0):
-        """
-        Executes the human player's move.
-
-        Parameters:
-        player (DataFrame): Player.
-        qty_card (int): Number of cards the player has.
-        value_card (int): Card value (default is 0).
-
-        Returns:
-        tuple: Suit and rank of the selected card.
-        """
         attempt = min(2, qty_card)
         try_card = True
         vibor = self.vibor_card(player, value_card)
@@ -262,16 +187,6 @@ class Make_game:
         return ' ', ' '
 
     def random_step(self, player, value_card=0):
-        """
-        Executes the robot's move.
-
-        Parameters:
-        player (DataFrame): Player.
-        value_card (int): Card value (default is 0).
-
-        Returns:
-        tuple: Suit and rank of the selected card.
-        """
         vibor = self.vibor_card(player, value_card)
         style = player.name.split('(')[1][:-1]
 
@@ -284,16 +199,6 @@ class Make_game:
                 return self.random_card(vibor, value_card)
 
     def min_card(self, vibor, value_card=0):
-        """
-        Determines the minimum card for the robot's move.
-
-        Parameters:
-        vibor (DataFrame): Available cards.
-        value_card (int): Card value (default is 0).
-
-        Returns:
-        tuple: Suit and rank of the selected card.
-        """
         vibor_ = vibor.to_numpy()
         mask = vibor_ > value_card
         v_min = vibor_[mask].min()
@@ -303,16 +208,6 @@ class Make_game:
         return vibor.index[i], vibor.columns[j]
 
     def step_player(self, player, type_player='human'):
-        """
-        Executes the player's move.
-
-        Parameters:
-        player (DataFrame): Player.
-        type_player (str): Type of player ('human' or 'robot').
-
-        Returns:
-        DataFrame: Player with updated cards.
-        """
         qty_card = (player != 0).sum().sum()
         if type_player == 'human':
             print()
@@ -328,23 +223,11 @@ class Make_game:
         idx_s = self.SUITS.index(m)
         idx_t = self.TYPECARD_KEYS.index(t)
 
-        # Place the card on the game field
         self.GAME_FIELD.iloc[idx_s, idx_t] = player.iloc[idx_s, idx_t]
-        # Remove the card from the player
         player.iloc[idx_s, idx_t] = 0
         return player
 
     def answer_player(self, player, type_player='human'):
-        """
-        Executes the player's response move.
-
-        Parameters:
-        player (DataFrame): Player.
-        type_player (str): Type of player ('human' or 'robot').
-
-        Returns:
-        tuple: Updated player and move status (True if successful, otherwise False).
-        """
         [a], [b] = np.where(self.GAME_FIELD.applymap(lambda x: x != 0))
         value_card = self.GAME_FIELD.iloc[a][b]
         qty_plcard = (player != 0).sum().sum()
@@ -371,17 +254,6 @@ class Make_game:
         return player, state
 
     def action_player(self, player, state_player, type_action):
-        """
-        Determines the player's action (move or response).
-
-        Parameters:
-        player (DataFrame): Player.
-        state_player (list): Player's state.
-        type_action (bool): Type of action (True for move, False for response).
-
-        Returns:
-        tuple: Updated player and player's state.
-        """
         type_player = self.get_type(player)
         if type_action:
             player = self.step_player(player, type_player)
@@ -393,15 +265,6 @@ class Make_game:
         return player, state_player
 
     def fin_play(self, player):
-        """
-        Determines if the player has finished the game.
-
-        Parameters:
-        player (DataFrame): Player.
-
-        Returns:
-        bool: True if the player finished the game, otherwise False.
-        """
         set_player = player.sum().sum()
         set_deck = self.PLAY_DECK.sum().sum()
         if not set_player and not set_deck:
@@ -411,14 +274,6 @@ class Make_game:
             return False
 
     def go_game(self, players, playdeck, trump):
-        """
-        Starts the game process.
-
-        Parameters:
-        players (list): List of players.
-        playdeck (DataFrame): Game deck.
-        trump (str): Trump suit.
-        """
         qty_players = len(players)
         self.CARDS_4PLAYER = (players[0] != 0).sum().sum()
         cycle = 1
@@ -474,7 +329,6 @@ class Make_game:
             print(df.name)
             print(df.head(10).to_string())
             print()
-
 
 
 
