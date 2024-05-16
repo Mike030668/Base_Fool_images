@@ -151,8 +151,6 @@ class Make_game:
 
 
 
-
-
     def random_card(self, vibor, value_card=0):
         vibor_ = vibor.to_numpy()
         idx, jdx = np.where(vibor_ > value_card)
