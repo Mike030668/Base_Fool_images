@@ -73,6 +73,8 @@ class Make_game:
         discard_x_start = 10
         card_width = 1.2
         card_height = 1.8
+        padding_x = 0.2
+        padding_y = 0.2
 
         def display_cards(cards, start_x, start_y, rows=1, cols=6, show_back=False):
             print(f"Displaying {len(cards)} cards at position ({start_x}, {start_y})")
@@ -83,8 +85,12 @@ class Make_game:
                     img = mpimg.imread(card_file)
                     row = i // cols
                     col = i % cols
-                    ax.imshow(img, extent=[start_x + col * card_width, start_x + (col + 1) * card_width, start_y + row * card_height, start_y + (row + 1) * card_height])
-                    print(f"Card image {card_file} added to plot at {[start_x + col * card_width, start_x + (col + 1) * card_width, start_y + row * card_height, start_y + (row + 1) * card_height]}")
+                    x0 = start_x + col * (card_width + padding_x)
+                    x1 = x0 + card_width
+                    y0 = start_y + row * (card_height + padding_y)
+                    y1 = y0 + card_height
+                    ax.imshow(img, extent=[x0, x1, y0, y1])
+                    print(f"Card image {card_file} added to plot at {[x0, x1, y0, y1]}")
                 else:
                     print(f"Image file {card_file} not found")
 
@@ -119,8 +125,8 @@ class Make_game:
         print(f"Loading trump image from {trump_img_path}")
         if os.path.exists(trump_img_path):
             trump_img = mpimg.imread(trump_img_path)
-            ax.imshow(trump_img, extent=[deck_x + card_width, deck_x + 2 * card_width, game_field_y, game_field_y + card_height])
-            print(f"Trump image {trump_img_path} added to plot at {[deck_x + card_width, deck_x + 2 * card_width, game_field_y, game_field_y + card_height]}")
+            ax.imshow(trump_img, extent=[deck_x + card_width + padding_x, deck_x + 2 * card_width + padding_x, game_field_y, game_field_y + card_height])
+            print(f"Trump image {trump_img_path} added to plot at {[deck_x + card_width + padding_x, deck_x + 2 * card_width + padding_x, game_field_y, game_field_y + card_height]}")
         else:
             print(f"Trump image file {trump_img_path} not found")
 
