@@ -50,24 +50,6 @@ class Make_game:
         else:
             return 'human'
 
-    def show_cards(self, player, show=True):
-        matrix = np.array(player)
-        for_choose = []
-        for idx_m in range(matrix.shape[0]):
-            for idx_t in range(matrix.shape[1]):
-                if matrix[idx_m][idx_t] != 0:
-                    card_name = f"{self.TYPECARD_KEYS[idx_t]}_{self.SUITS[idx_m]}"
-                    card = [player.index[idx_m], player.columns[idx_t], card_name]
-                    for_choose.append(card)
-        
-        if show:
-            print(f'Your cards, {player.name}:')
-            for card in for_choose:
-                card_file = f"{self.IMG_PATH}/{card[2]}.png"
-                display(Image(filename=card_file))
-
-        return for_choose
-
     def display_game_state(self, players, game_field, bita, playdeck, trump):
         """
         Displays the current state of the game using matplotlib.
@@ -129,6 +111,35 @@ class Make_game:
         # Hide axes
         ax.axis('off')
         plt.show()
+
+    def show_cards(self, player, show=True):
+        """
+        Converts player's DataFrame to a list of cards and displays images.
+
+        Parameters:
+        player (DataFrame): Player.
+        show (bool): Show the cards to the player (default is True).
+
+        Returns:
+        list: List of player's cards.
+        """
+        matrix = np.array(player)
+        for_choose = []
+        for idx_m in range(matrix.shape[0]):
+            for idx_t in range(matrix.shape[1]):
+                if matrix[idx_m][idx_t] != 0:
+                    card_name = f"{self.TYPECARD_KEYS[idx_t]}_{self.SUITS[idx_m]}"
+                    card = [player.index[idx_m], player.columns[idx_t], card_name]
+                    for_choose.append(card)
+        
+        if show:
+            print(f'Your cards, {player.name}:')
+            for card in for_choose:
+                card_file = f"{self.IMG_PATH}/{card[2]}.png"
+                display(Image(filename=card_file))
+
+        return for_choose
+
 
 
     def random_card(self, vibor, value_card=0):
