@@ -50,6 +50,8 @@ class Make_game:
         else:
             return 'human'
 
+
+
     def display_game_state(self, players, game_field, bita, playdeck, trump):
         """
         Displays the current state of the game using matplotlib.
@@ -64,13 +66,13 @@ class Make_game:
         fig, ax = plt.subplots(figsize=(14, 8))
 
         # Define the positions
-        human_y = 1
-        robot_y = 6
+        human_y = 0
+        robot_y = 8
         game_field_y = 4
         deck_x = 8
         discard_x_start = 10
-        card_width = 1
-        card_height = 1.5
+        card_width = 1.2
+        card_height = 1.8
 
         # Display human player cards (bottom row)
         human_cards = self.show_cards(players[0], show=False)
@@ -100,11 +102,11 @@ class Make_game:
             img = mpimg.imread(card_file)
             ax.imshow(img, extent=[discard_x_start + i * card_width, discard_x_start + (i + 1) * card_width, game_field_y, game_field_y + card_height])
 
-        # Display deck (top row, to the right of the robot cards)
+        # Display deck (middle row, to the right of the discard pile)
         deck_img = mpimg.imread(os.path.join(self.IMG_PATH, "back.png"))
         ax.imshow(deck_img, extent=[deck_x, deck_x + card_width, game_field_y, game_field_y + card_height])
 
-        # Display trump card (top row, to the right of the deck)
+        # Display trump card (middle row, to the right of the deck)
         trump_img = mpimg.imread(os.path.join(self.IMG_PATH, f"{trump}.png"))
         ax.imshow(trump_img, extent=[deck_x + card_width, deck_x + 2 * card_width, game_field_y, game_field_y + card_height])
 
