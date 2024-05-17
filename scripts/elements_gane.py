@@ -4,31 +4,11 @@ import numpy as np
 
 
 class Make_players:
-    def __init__(self,
-                 cards4plaer,
-                 humans,
-                 robots,
-                 mincars4plaer,
-                 maxcars4plaer,
-                 minplaers,
-                 sizecoloda,
-                 startpole):
-        """
-        Класс для создания игроков в игре "Дурак".
-
-        Параметры:
-        cards4plaer (int): Количество карт для каждого игрока.
-        humans (int): Количество людей-игроков.
-        robots (int): Количество роботов-игроков.
-        mincars4plaer (int): Минимальное количество карт для игрока.
-        maxcars4plaer (int): Максимальное количество карт для игрока.
-        minplaers (int): Минимальное количество игроков.
-        sizecoloda (int): Размер колоды.
-        startpole (DataFrame): Начальное игровое поле.
-        """
+    def __init__(self, cards4plaer, humans, robots, mincars4plaer, maxcars4plaer, minplaers, sizecoloda, startpole, get_human_name = False):
         self.MAX_PLAYERS = None
         self.CARDS_4PLAYER = cards4plaer
         self.humans = humans
+        self.get_human_name = get_human_name
         self.robots = robots
         self.MINCARDS_4PLAER = mincars4plaer
         self.MAXCARDS_4PLAER = maxcars4plaer
@@ -37,79 +17,66 @@ class Make_players:
         self.START_pole = startpole
 
     def __call__(self):
-        players, cards4plaer = self.maker_players()
+        players, cards4plaer = self.make_players(self.get_human_name)
         return players, cards4plaer
 
     @property
     def opros(self):
-        """
-        Функция опроса для установления параметров игры:
-        CARDS_4PLAYER - количество карт у игроков.
-        humans - количество людей в игре.
-        robots - количество роботов в игре.
-        """
         err_h = True
         err_r = True
         err_cards = True
 
-        # Определение CARDS_4PLAYER
         while err_cards:
             if not self.CARDS_4PLAYER:
                 try:
-                    self.CARDS_4PLAYER = int(input(
-                        f"Укажите количество карт выдаваемых на руки от {self.MINCARDS_4PLAER} до {self.MAXCARDS_4PLAER} включительно: "))
+                    self.CARDS_4PLAYER = int(input(f"Specify the number of cards dealt from {self.MINCARDS_4PLAER} to {self.MAXCARDS_4PLAER} inclusive: "))
                     if self.MINCARDS_4PLAER <= self.CARDS_4PLAYER <= self.MAXCARDS_4PLAER:
                         err_cards = False
                 except ValueError:
-                    print("Ошибка, укажите число карт")
+                    print("Error, specify the number of cards")
             else:
                 if isinstance(self.CARDS_4PLAYER, int):
                     err_cards = False
                 else:
-                    print("Ошибка, укажите число карт")
+                    print("Error, specify the number of cards")
                     self.CARDS_4PLAYER = None
 
-        # Определение MAX_PLAYERS
         self.MAX_PLAYERS = self.QQUANTY_COLODA // self.CARDS_4PLAYER
 
-        # Определение количества игроков (людей и роботов)
         while err_h and err_r:
-            print(
-                f"Количество участников (роботы и люди) должно быть в сумме не менее {self.MIN_PLAYERS} и не более {self.MAX_PLAYERS}")
+            print(f"The number of participants (robots and humans) should be in total not less than {self.MIN_PLAYERS} and not more than {self.MAX_PLAYERS}")
             while err_h:
                 if not self.humans and self.humans != 0:
                     try:
-                        self.humans = int(input('Введите количество игроков людей: '))
+                        self.humans = int(input('Enter the number of human players: '))
                         err_h = False
                     except ValueError:
-                        print("Ошибка, укажите число человек")
+                        print("Error, specify the number of humans")
                 else:
                     if isinstance(self.humans, int):
-                        print(f'Количество людей уже задано - {self.humans}')
+                        print(f'The number of humans is already set - {self.humans}')
                         err_h = False
                     else:
-                        print("Ошибка, укажите число человек")
+                        print("Error, specify the number of humans")
                         self.humans = None
 
             while err_r:
                 if not self.robots and self.robots != 0:
                     try:
-                        self.robots = int(input('Введите количество игроков роботов: '))
+                        self.robots = int(input('Enter the number of robot players: '))
                         err_r = False
                     except ValueError:
-                        print("Ошибка, укажите число роботов")
+                        print("Error, specify the number of robots")
                 else:
                     if isinstance(self.robots, int):
-                        print(f'Количество роботов уже задано - {self.robots}')
+                        print(f'The number of robots is already set - {self.robots}')
                         err_r = False
                     else:
-                        print("Ошибка, укажите число роботов")
+                        print("Error, specify the number of robots")
                         self.robots = None
 
-                if self.humans + self.robots > self.MAX_PLAYERS \
-                        or self.humans + self.robots < self.MIN_PLAYERS:
-                    print(
-                        f'Ошибка, указано суммарное количество игроков не в диапазоне {self.MIN_PLAYERS} - {self.MAX_PLAYERS}')
+                if self.humans + self.robots > self.MAX_PLAYERS or self.humans + self.robots < self.MIN_PLAYERS:
+                    print(f'Error, the total number of players specified is not in the range {self.MIN_PLAYERS} - {self.MAX_PLAYERS}')
                     err_h = True
                     err_r = True
                     if self.humans == 0 and self.robots == 0:
@@ -118,61 +85,38 @@ class Make_players:
 
         return self.humans, self.robots, self.CARDS_4PLAYER
 
-    def make_player(self, robot=True, number=0):
-        """
-        Создает игрока.
-
-        Параметры:
-        robot (bool): Указывает, является ли игрок роботом.
-        number (int): Порядковый номер робота.
-
-        Возвращает:
-        DataFrame: Игрок с присвоенным именем.
-        """
+    def make_player(self, robot=True, number=0, get_human_name = False):
         player = self.START_pole.copy().astype(int)
         if robot:
             style = random.choice(('min', 'rand'))
             player.name = f'Robot_{number}({style})'
         else:
-            player.name = input('Введите имя человека: ').title()
+            if get_human_name:
+               player.name = input('Enter the human player name: ').title()
+            else:  player.name = f'Human_{number}'
         return player
 
-    def maker_players(self):
-        """
-        Создает список игроков.
+    def make_players(self, get_human_name = False):
 
-        Возвращает:
-        list: Список игроков.
-        int: Количество карт для каждого игрока.
-        """
         hum, rob, cards4plaer = self.opros
         players = []
         if rob:
             for i in range(rob):
                 players.append(self.make_player(number=i + 1))
         if hum:
-            for _ in range(hum):
-                print(f'Игрок {_ + 1}:')
-                players.append(self.make_player(robot=False))
+            for j in range(hum):
+                if get_human_name:
+                    print(f'Player {j + 1}:')
+                    players.append(self.make_player(robot=False, get_human_name = get_human_name))
+                else:
+                    players.append(self.make_player(robot=False, number=j + 1, get_human_name = get_human_name))
+
         return players, cards4plaer
 
-class Razdaza:
-    def __init__(self,
-                 playcoloda,
-                 cards4plaer,
-                 poleigry,
-                 bitta,
-                 startcoloda):
-        """
-        Класс для раздачи карт игрокам.
 
-        Параметры:
-        playcoloda (DataFrame): Игровая колода.
-        cards4plaer (int): Количество карт для каждого игрока.
-        poleigry (DataFrame): Игровое поле.
-        bitta (DataFrame): Бита.
-        startcoloda (DataFrame): Начальная колода.
-        """
+
+class Razdaza:
+    def __init__(self, playcoloda, cards4plaer, poleigry, bitta, startcoloda):
         self.PLAY_coloda = playcoloda
         self.CARDS_4PLAYER = cards4plaer
         self.BITA = bitta
@@ -185,45 +129,16 @@ class Razdaza:
         return players, self.PLAY
 
     def perebor(self, df):
-        """
-        Контроль количества карт у игрока.
-
-        Параметры:
-        df (DataFrame): Карты игрока.
-
-        Возвращает:
-        bool: True, если у игрока достаточно карт, иначе False.
-        """
         qty_card = (df != 0).sum().sum()
         return qty_card >= self.CARDS_4PLAYER
 
     def random_card(self, vibor, value_card=0):
-        """
-        Определяет случайный выбор карты из доступных.
-
-        Параметры:
-        vibor (DataFrame): Доступные карты.
-        value_card (int): Значение карты.
-
-        Возвращает:
-        tuple: Масть и ранг выбранной карты.
-        """
         vibor_ = vibor.to_numpy()
         idx, jdx = np.where(vibor_ > value_card)
         i = random.randint(0, len(idx) - 1)
         return vibor.index[idx[i]], vibor.columns[jdx[i]]
 
     def take_cards(self, player, take='full'):
-        """
-        Выдача карт из колоды игроку.
-
-        Параметры:
-        player (DataFrame): Игрок, которому выдаются карты.
-        take (str or int): Сколько карт брать (по умолчанию до CARDS_4PLAYER).
-
-        Возвращает:
-        DataFrame: Игрок с обновленными картами.
-        """
         take_card = True
         schet = 0
 
@@ -247,12 +162,6 @@ class Razdaza:
         return player
 
     def control_invariant(self, data):
-        """
-        Проверка инварианта игрового пространства для контроля игры.
-
-        Параметры:
-        data (list): Список DataFrame с данными игры.
-        """
         sum_data = np.zeros_like(data[0])
         for el in data:
             sum_data += el.to_numpy()
@@ -260,25 +169,15 @@ class Razdaza:
         tech_sum = (self.PLAY_coloda + self.BITA + self.POLE_IGRY).to_numpy()
         invariant = sum_data + tech_sum - self.START_coloda.to_numpy()
         if invariant.sum().sum() != 0:
-            print('Ошибка контроля invariant карт')
+            print('Error control invariant cards')
             print(invariant)
             self.PLAY = False
 
     def razdacha_cards(self, players):
-        """
-        Раздача карт игрокам.
-
-        Параметры:
-        players (list): Список игроков.
-
-        Возвращает:
-        list: Обновленный список игроков.
-        bool: Статус игры (продолжается или закончена).
-        """
         for i in range(len(players)):
             qty_card = (players[i] != 0).sum().sum()
             if self.PLAY_coloda.sum().sum() and qty_card < self.CARDS_4PLAYER:
-                print(f'Выдача карт {players[i].name}')
+                print(f'Dealing cards to {players[i].name}')
                 players[i] = self.take_cards(players[i])
             self.control_invariant(players)
         return players, self.PLAY
