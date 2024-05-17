@@ -11,6 +11,7 @@ This project implements the classic Russian card game "Durak" (Fool). The game i
 - **Interactive Visualization:** The game state, including the cards in hand, on the field, and in the discard pile, is visualized using `matplotlib`.
 - **Clear Instructions:** Prompts and instructions are provided to guide human players throughout the game.
 
+<img src='images/Game.png' width='520'> 
 ## Getting Started
 
 ### Prerequisites
