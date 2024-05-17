@@ -301,7 +301,7 @@ class Make_game:
                 else:
                     type_action = False
 
-                
+                clear_output(True)   
                 players[step], state_players[step] = self.action_player(players[step], state_players[step], type_action)
                 razdacha_cards = Razdaza(self.PLAY_DECK, self.CARDS_4PLAYER, self.GAME_FIELD, self.BITA, self.START_DECK)
 
@@ -310,7 +310,7 @@ class Make_game:
                 if sum(state_players[:, 1]) == 1:
                     fin += 1
 
-                clear_output(True)   
+                #clear_output(True)   
                 self.display_game_state(players, self.GAME_FIELD, self.BITA, self.PLAY_DECK, self.TRUMP)
 
                 some_state = not type_action and not state_players[step][0]
