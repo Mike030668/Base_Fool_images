@@ -11,7 +11,8 @@ import imageio
 import PIL
 
 class Make_game:
-    def __init__(self, cards4player, suits, typecard_keys, idx_suits, idx_typecards, startdeck, img_path="images/", img_save_path=""):
+    def __init__(self, cards4player, suits, typecard_keys, idx_suits, idx_typecards, 
+                 startdeck, img_path="images/", img_save_path="", make_gif = False):
         self.CARDS_4PLAYER = cards4player
         self.SUITS = suits
         self.TYPECARD_KEYS = typecard_keys
@@ -29,6 +30,7 @@ class Make_game:
         self.PLAY_DECK = self.START_DECK.copy()
         self.TRUMP = None  # Initialize TRUMP
         self.frames = []  # To store frames for GIF
+        self.MAKE_GIF = make_gif
 
     def __call__(self, players, playdeck, trump):
         self.TRUMP = trump  # Set TRUMP when game starts
@@ -124,17 +126,18 @@ class Make_game:
             clear_output(True)
             plt.show()
         else:
-            self.save2gif = True
+            
             fig.savefig(self.IMG_SAVE_PATH, bbox_inches='tight', pad_inches=0)   # save the figure to file
             plt.close(fig)    # close the figure window
 
             # Save frame for GIF
-            frame = imageio.imread(self.IMG_SAVE_PATH)
-            frame = PIL.Image.fromarray(frame).resize(gif_size)
-            self.frames.append(frame)
+            if self.MAKE_GIF:
+                frame = imageio.imread(self.IMG_SAVE_PATH)
+                frame = PIL.Image.fromarray(frame).resize(gif_size)
+                self.frames.append(frame)
 
     def save_gif(self, gif_path="game_play.gif", duration=300):
-        if self.save2gif:
+        if self.MAKE_GIF:
             imageio.mimsave(gif_path, self.frames, duration=duration)
         else: pass
 
@@ -176,8 +179,10 @@ class Make_game:
         while try_card and schet < attempt + 1:
 
             if action_model == None:
-                print(f'Player {player.name}, your move, you have {attempt - schet + 1} attempts left current reward {step_reward}')
+                print(f'nPlayer {player.name}, your move, you have {attempt - schet + 1} attempts left current reward {step_reward}')
+
                 step = input('\nEnter card number or zero to skip: \n')
+
             else:
                 step =  action_model
 
