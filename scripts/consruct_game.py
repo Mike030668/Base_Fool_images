@@ -428,7 +428,7 @@ class Durack:
         self.img_save_path = img_save_path
 
         self.game_process = Make_game(self.__CARDS_4PLAYER, self.__MUSTY, self.__TYPECARD_KEYS, 
-                                      elf.__IDX_MUSTY, self.__IDX_TYPECARDS, self.__base_deck, 
+                                      self.__IDX_MUSTY, self.__IDX_TYPECARDS, self.__base_deck, 
                                       img_path, img_save_path, make_gif)
 
     def init_game(self):
