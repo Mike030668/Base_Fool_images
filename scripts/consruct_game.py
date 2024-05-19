@@ -177,7 +177,7 @@ class Make_game:
 
             if action_model == None:
                 print(f'Player {player.name}, your move, you have {attempt - schet + 1} attempts left current reward {step_reward}')
-                step = input('Enter card number or zero to skip: ')
+                step = input('\nEnter card number or zero to skip: \n')
             else:
                 step =  action_model
 
