@@ -3,6 +3,7 @@ import random
 import numpy as np
 
 
+
 class Make_players:
     def __init__(self, cards4plaer, humans, robots, mincars4plaer, maxcars4plaer, minplaers, sizecoloda, startpole, get_human_name = False):
         self.MAX_PLAYERS = None
@@ -75,6 +76,7 @@ class Make_players:
                         print("Error, specify the number of robots")
                         self.robots = None
 
+
                 if self.humans + self.robots > self.MAX_PLAYERS or self.humans + self.robots < self.MIN_PLAYERS:
                     print(f'Error, the total number of players specified is not in the range {self.MIN_PLAYERS} - {self.MAX_PLAYERS}')
                     err_h = True
@@ -100,9 +102,7 @@ class Make_players:
 
         hum, rob, cards4plaer = self.opros
         players = []
-        if rob:
-            for i in range(rob):
-                players.append(self.make_player(number=i + 1))
+
         if hum:
             for j in range(hum):
                 if get_human_name:
@@ -110,9 +110,11 @@ class Make_players:
                     players.append(self.make_player(robot=False, get_human_name = get_human_name))
                 else:
                     players.append(self.make_player(robot=False, number=j + 1, get_human_name = get_human_name))
+        if rob:
+            for i in range(rob):
+                players.append(self.make_player(number=i + 1))
 
         return players, cards4plaer
-
 
 
 class Razdaza:
