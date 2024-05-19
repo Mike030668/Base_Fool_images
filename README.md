@@ -12,7 +12,10 @@ This project implements the classic Russian card game "Durak" (Fool). The game i
 - **Clear Instructions:** Prompts and instructions are provided to guide human players throughout the game.
 
 <img src='images/Game.png' width='520'> 
+
 ## Getting Started
+
+Check in [colab](https://colab.research.google.com/github/Mike030668/Base_Fool_images/blob/master/play_fool.ipynb)
 
 ### Prerequisites
 
