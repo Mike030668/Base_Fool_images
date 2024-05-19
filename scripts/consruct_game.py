@@ -408,7 +408,7 @@ class Make_game:
 
 
 class Durack:
-    def __init__(self, cards4player=None, humans=1, robots=1, img_path="images/", img_save_path = ""):
+    def __init__(self, cards4player=None, humans=1, robots=1, img_path="images/", img_save_path = "", make_gif = False):
         self.__humans = humans
         self.__robots = robots
         self.__CARDS_4PLAYER = cards4player
@@ -427,7 +427,9 @@ class Durack:
         self.__MIN_PLAYERS = 2
         self.img_save_path = img_save_path
 
-        self.game_process = Make_game(self.__CARDS_4PLAYER, self.__MUSTY, self.__TYPECARD_KEYS, self.__IDX_MUSTY, self.__IDX_TYPECARDS, self.__base_deck, img_path, img_save_path)
+        self.game_process = Make_game(self.__CARDS_4PLAYER, self.__MUSTY, self.__TYPECARD_KEYS, 
+                                      elf.__IDX_MUSTY, self.__IDX_TYPECARDS, self.__base_deck, 
+                                      img_path, img_save_path, make_gif)
 
     def init_game(self):
         maker_players = Make_players(self.__CARDS_4PLAYER, self.__humans, self.__robots, self.__MINCARDS_4PLAYER, self.__MAXCARDS_4PLAYER, self.__MIN_PLAYERS, self.__DECK_SIZE, self.__START_FIELD)
@@ -456,6 +458,7 @@ class Durack:
         print()
 
         return players, PLAY_deck, trump
+
 
 class Make_players:
     def __init__(self, cards4plaer, humans, robots, mincars4plaer, maxcars4plaer, minplaers, sizecoloda, startpole, get_human_name = False):
