@@ -13,7 +13,7 @@ import time
 
 class Make_game:
     def __init__(self, cards4player, suits, typecard_keys, idx_suits, idx_typecards,
-                 startdeck, img_path="images/", img_save_path="", make_gif = False, 
+                 startdeck, img_path="images/", img_save_path="", make_gif = False,
                  print_out = True, plot_game = True):
         self.CARDS_4PLAYER = cards4player
         self.SUITS = suits
@@ -67,7 +67,6 @@ class Make_game:
                     ax.imshow(img, extent=[start_x + col * 1.2, start_x + (col + 1) * 1.2, start_y - row * 2, start_y - row * 2 + 1.8])
                 else:
                     print(f"Image file {card_file} not found")
-        self.save2gif = False
         self.fig_size = fig_size
         human_cards_y_start = 0.2
         robot_cards_y_start = 6
@@ -131,9 +130,11 @@ class Make_game:
             plt.show()
 
         # Save frame for GIF
-        if self.MAKE_GIF:
+        if self.IMG_SAVE_PATH:
             fig.savefig(self.IMG_SAVE_PATH, bbox_inches='tight', pad_inches=0)   # save the figure to file
             plt.close(fig)    # close the figure window
+        # Save frame for GIF
+        if self.MAKE_GIF:
             frame = imageio.v2.imread(self.IMG_SAVE_PATH)
             frame = PIL.Image.fromarray(frame).resize(gif_size)
             self.frames.append(frame)
@@ -177,7 +178,7 @@ class Make_game:
         if self.PRINT_OUT:
             if action_model != None:
                 print(f"Used human model ")
-            else: 
+            else:
                 print(f"Human avswer")
 
         while try_card and schet < attempt + 1:
@@ -314,7 +315,7 @@ class Make_game:
         else:
             if self.PRINT_OUT:  print(f'Player {player.name} responds with {m}_{t}')
             else: print(f'\rPlayer {player.name} responds with {m}_{t}', end='')
-                
+
             idx_s = self.SUITS.index(m)
             idx_t = self.TYPECARD_KEYS.index(t)
             self.BITA.iloc[idx_s, idx_t] = player.iloc[idx_s, idx_t]
@@ -417,8 +418,9 @@ class Make_game:
 
 
 class Durack:
-    def __init__(self, cards4player=None, humans=1, robots=1, img_path="images/", 
-                 img_save_path = "", make_gif = False, print_out = True, plot_game = True):
+    def __init__(self, cards4player=None, humans=1, robots=1, img_path="images/",
+                 img_save_path = "", make_gif = False, print_out = True, plot_game = True, 
+                 get_human_name = False):
         self.__humans = humans
         self.__robots = robots
         self.__CARDS_4PLAYER = cards4player
@@ -438,17 +440,20 @@ class Durack:
         self.img_save_path = img_save_path
         self.PRINT_OUT = print_out
         self.PLOT_GAME = plot_game
+        self.get_human_name = get_human_name
+        
 
         self.game_process = Make_game(self.__CARDS_4PLAYER, self.__MUSTY, self.__TYPECARD_KEYS,
                                       self.__IDX_MUSTY, self.__IDX_TYPECARDS, self.__base_deck,
                                       img_path, img_save_path, make_gif, print_out, plot_game)
 
     def init_game(self):
-        maker_players = Maker_players(self.__CARDS_4PLAYER, self.__humans, self.__robots, 
-                                     self.__MINCARDS_4PLAYER, self.__MAXCARDS_4PLAYER, 
+        maker_players = Maker_players(self.__CARDS_4PLAYER, self.__humans, self.__robots,
+                                     self.__MINCARDS_4PLAYER, self.__MAXCARDS_4PLAYER,
                                      self.__MIN_PLAYERS, self.__DECK_SIZE, self.__START_FIELD,
+                                     self.get_human_name,
                                      self.PRINT_OUT)
-        
+
         players, self.__CARDS_4PLAYER = maker_players()
         if self.PRINT_OUT:
             print()
