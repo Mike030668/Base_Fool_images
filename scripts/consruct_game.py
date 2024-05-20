@@ -368,7 +368,7 @@ class Make_game:
                     type_action = True
                 else:
                     type_action = False
-                print()
+                if self.PRINT_OUT: print()
                 self.display_game_state(players, self.GAME_FIELD, self.BITA, self.PLAY_DECK, self.TRUMP)
 
                 if  self.get_type(players[step]) =="human" and model != None:
