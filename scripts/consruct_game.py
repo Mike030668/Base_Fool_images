@@ -1,4 +1,4 @@
-from scripts.elements_gane import Razdaza, Make_players
+from scripts.elements_gane import Razdaza, Maker_players
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
