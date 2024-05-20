@@ -4,8 +4,9 @@ import numpy as np
 
 
 
-class Make_players:
-    def __init__(self, cards4plaer, humans, robots, mincars4plaer, maxcars4plaer, minplaers, sizecoloda, startpole, get_human_name = False):
+class Maker_players:
+    def __init__(self, cards4plaer, humans, robots, mincars4plaer, maxcars4plaer, minplaers, 
+                 sizecoloda, startpole, get_human_name = False, print_out = True):
         self.MAX_PLAYERS = None
         self.CARDS_4PLAYER = cards4plaer
         self.humans = humans
@@ -16,6 +17,7 @@ class Make_players:
         self.MIN_PLAYERS = minplaers
         self.QQUANTY_COLODA = sizecoloda
         self.START_pole = startpole
+        self.PRINT_OUT = print_out
 
     def __call__(self):
         players, cards4plaer = self.make_players(self.get_human_name)
@@ -45,7 +47,8 @@ class Make_players:
         self.MAX_PLAYERS = self.QQUANTY_COLODA // self.CARDS_4PLAYER
 
         while err_h and err_r:
-            print(f"The number of participants (robots and humans) should be in total not less than {self.MIN_PLAYERS} and not more than {self.MAX_PLAYERS}")
+            if self.PRINT_OUT:
+               print(f"The number of participants (robots and humans) should be in total not less than {self.MIN_PLAYERS} and not more than {self.MAX_PLAYERS}")
             while err_h:
                 if not self.humans and self.humans != 0:
                     try:
@@ -106,7 +109,7 @@ class Make_players:
         if hum:
             for j in range(hum):
                 if get_human_name:
-                    print(f'Player {j + 1}:')
+                    if self.PRINT_OUT:  print(f'Player {j + 1}:')
                     players.append(self.make_player(robot=False, get_human_name = get_human_name))
                 else:
                     players.append(self.make_player(robot=False, number=j + 1, get_human_name = get_human_name))
@@ -118,13 +121,14 @@ class Make_players:
 
 
 class Razdaza:
-    def __init__(self, playcoloda, cards4plaer, poleigry, bitta, startcoloda):
+    def __init__(self, playcoloda, cards4plaer, poleigry, bitta, startcoloda, print_out = True):
         self.PLAY_coloda = playcoloda
         self.CARDS_4PLAYER = cards4plaer
         self.BITA = bitta
         self.POLE_IGRY = poleigry
         self.START_coloda = startcoloda
         self.PLAY = True
+        self.PRINT_OUT = print_out
 
     def __call__(self, players):
         players, self.PLAY = self.razdacha_cards(players)
@@ -179,7 +183,8 @@ class Razdaza:
         for i in range(len(players)):
             qty_card = (players[i] != 0).sum().sum()
             if self.PLAY_coloda.sum().sum() and qty_card < self.CARDS_4PLAYER:
-                print(f'Dealing cards to {players[i].name}')
+                if self.PRINT_OUT: print(f'Dealing cards to {players[i].name}')
+                else: print(f'\rDealing cards to {players[i].name}', end='')
                 players[i] = self.take_cards(players[i])
             self.control_invariant(players)
         return players, self.PLAY

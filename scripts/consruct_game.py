@@ -9,10 +9,12 @@ import random
 import os
 import imageio
 import PIL
+import time
 
 class Make_game:
-    def __init__(self, cards4player, suits, typecard_keys, idx_suits, idx_typecards, 
-                 startdeck, img_path="images/", img_save_path="", make_gif = False):
+    def __init__(self, cards4player, suits, typecard_keys, idx_suits, idx_typecards,
+                 startdeck, img_path="images/", img_save_path="", make_gif = False, 
+                 print_out = True, plot_game = True):
         self.CARDS_4PLAYER = cards4player
         self.SUITS = suits
         self.TYPECARD_KEYS = typecard_keys
@@ -31,6 +33,8 @@ class Make_game:
         self.TRUMP = None  # Initialize TRUMP
         self.frames = []  # To store frames for GIF
         self.MAKE_GIF = make_gif
+        self.PRINT_OUT = print_out
+        self.PLOT_GAME = plot_game
 
     def __call__(self, players, playdeck, trump):
         self.TRUMP = trump  # Set TRUMP when game starts
@@ -122,19 +126,18 @@ class Make_game:
             else:
                 print(f"Deck image file {deck_img_path} not found")
 
-        if not len(self.IMG_SAVE_PATH):
+        if self.PLOT_GAME:
             clear_output(True)
             plt.show()
         else:
-            
             fig.savefig(self.IMG_SAVE_PATH, bbox_inches='tight', pad_inches=0)   # save the figure to file
             plt.close(fig)    # close the figure window
 
-            # Save frame for GIF
-            if self.MAKE_GIF:
-                frame = imageio.imread(self.IMG_SAVE_PATH)
-                frame = PIL.Image.fromarray(frame).resize(gif_size)
-                self.frames.append(frame)
+        # Save frame for GIF
+        if self.MAKE_GIF:
+            frame = imageio.v2.imread(self.IMG_SAVE_PATH)
+            frame = PIL.Image.fromarray(frame).resize(gif_size)
+            self.frames.append(frame)
 
     def save_gif(self, gif_path="game_play.gif", duration=300):
         if self.MAKE_GIF:
@@ -172,16 +175,19 @@ class Make_game:
         for_choose = self.show_cards(player, False)
         available = self.show_cards(vibor, False)
         step_reward = 0
-        if action_model != None:
-            print(f"Used human model ")
-        else: print(f"Hhuman avswer")
+        if self.PRINT_OUT:
+            if action_model != None:
+                print(f"Used human model ")
+            else: 
+                print(f"Human avswer")
 
         while try_card and schet < attempt + 1:
 
             if action_model == None:
-                print(f'nPlayer {player.name}, your move, you have {attempt - schet + 1} attempts left current reward {step_reward}')
+                print(f'Player {player.name}, your move, you have {attempt - schet + 1} attempts left current reward {step_reward}')
+                time.sleep(2)
+                step = input('\nEnter card number or zero to skip: ')
 
-                step = input('\nEnter card number or zero to skip: \n')
 
             else:
                 step =  action_model
@@ -202,18 +208,18 @@ class Make_game:
                     else:
                         schet += 1
                         step_reward -= 1
-                        print("step_reward -= 1", step_reward)
-                        print(f'{player.name}, you entered an invalid card number, please be more careful, your step_reward {step_reward}')
+                        if self.PRINT_OUT:
+                            print(f'{player.name}, you entered an invalid card number, please be more careful, your step_reward {step_reward}')
                 except ValueError:
                     print(f'{player.name}, a card number or space to skip is required, please be more careful')
                     schet += 1
                     step_reward -= 1
-                    print("step_reward -= 1", step_reward)
 
-            print("step_reward", step_reward)
+
             if not try_card:
                 if vibor.sum().sum() == 0:
-                    print(f'{player.name}, unfortunately, you do not have a valid move')
+                    if self.PRINT_OUT:
+                        print(f'{player.name}, unfortunately, you do not have a valid move')
                     return 0, 0, step_reward
                 else:
                     hod = for_choose[step - 1]
@@ -222,7 +228,8 @@ class Make_game:
                     available = [[av[0], av[1]] for av in available]
 
                     if [step_suit, step_typecards] in available:
-                        print(f'{player.name}, your move {step_suit} {step_typecards} is accepted, your step_reward {step_reward}')
+                        if self.PRINT_OUT:
+                            print(f'{player.name}, your move {step_suit} {step_typecards} is accepted, your step_reward {step_reward}')
                         try_card = False
                         return step_suit, step_typecards, step_reward
                     else:
@@ -230,7 +237,7 @@ class Make_game:
                         step_reward -= 1
             else:
                 pass
-        print(f'{player.name}, you have used up your {attempt + 1} attempts')
+
         return 0, 0, step_reward
 
     def random_step(self, player, value_card=0, step_reward = 0):
@@ -264,20 +271,21 @@ class Make_game:
 
     def step_player(self, player, type_player='human', action_model = None):
         qty_card = (player != 0).sum().sum()
-        print("type_player", type_player)
+
 
         if type_player == 'human':
-            print()
-            print(f'Your move, {player.name}')
+            if self.PRINT_OUT: print(f'Your move, {player.name}')
+            else: print(f'\rYour move, {player.name}', end='')
             m, t, step_reward = self.human_step(player, qty_card, 0, action_model)
             if m == 0 and t == 0:
-                print(f'Player {player.name} skipped the move')
+                if self.PRINT_OUT: print(f'Player {player.name} skipped the move')
+                else: print(f'\rPlayer {player.name} skipped the move', end='')
                 return player, step_reward
 
         if type_player == 'robot':
             m, t, step_reward = self.random_step(player)
-
-        print(f'{player.name} made a move {m}_{t}')
+        if self.PRINT_OUT: print(f'{player.name} made a move {m}_{t}')
+        else: print(f'\r{player.name} made a move {m}_{t}', end='')
         idx_s = self.SUITS.index(m)
         idx_t = self.TYPECARD_KEYS.index(t)
 
@@ -294,17 +302,20 @@ class Make_game:
             m, t, step_reward = self.random_step(player, value_card)
 
         if type_player == 'human':
-            print()
-            print(f'On the field: {self.SUITS[a]} {self.TYPECARD_KEYS[b]}')
+            if self.PRINT_OUT:  print(f'\nOn the field: {self.SUITS[a]} {self.TYPECARD_KEYS[b]}')
+            else: print(f'\rOn the field: {self.SUITS[a]} {self.TYPECARD_KEYS[b]}', end='')
             m, t, step_reward = self.human_step(player, qty_plcard, value_card, action_model)
 
         if m == 0 and t == 0:
-            print(f'Player {player.name} takes the card and skips the move')
+            if self.PRINT_OUT: print(f'Player {player.name} takes the card and skips the move')
+            else: print(f'\rPlayer {player.name} takes the card and skips the move', end='')
             player.iloc[a][b] = self.GAME_FIELD.iloc[a][b]
             self.GAME_FIELD.iloc[a][b] = 0
             state = False
         else:
-            print(f'Player {player.name} responds with {m}_{t}')
+            if self.PRINT_OUT:  print(f'Player {player.name} responds with {m}_{t}')
+            else: print(f'\rPlayer {player.name} responds with {m}_{t}', end='')
+                
             idx_s = self.SUITS.index(m)
             idx_t = self.TYPECARD_KEYS.index(t)
             self.BITA.iloc[idx_s, idx_t] = player.iloc[idx_s, idx_t]
@@ -330,7 +341,7 @@ class Make_game:
         set_player = player.sum().sum()
         set_deck = self.PLAY_DECK.sum().sum()
         if not set_player and not set_deck:
-            print(f'Player {player.name} finished the game')
+            print(f'\nPlayer {player.name} finished the game')
             return True
         else:
             return False
@@ -349,7 +360,7 @@ class Make_game:
         state_players = self.make_states(players)
 
         while self.PLAY:
-            print('Cycle ', cycle)
+            if self.PRINT_OUT:  print('Cycle ', cycle)
             step = 0
             while step < qty_players and self.PLAY:
                 if fin: fin += 1
@@ -357,18 +368,17 @@ class Make_game:
                     type_action = True
                 else:
                     type_action = False
-
+                print()
                 self.display_game_state(players, self.GAME_FIELD, self.BITA, self.PLAY_DECK, self.TRUMP)
-                print("players[step].name ", self.get_type(players[step]))
+
                 if  self.get_type(players[step]) =="human" and model != None:
                     action_model = model()
-                    print(f"action_model {action_model}")
+
                 else:
                     action_model = None
 
                 players[step], state_players[step], player_step_reward = self.action_player(players[step], state_players[step], type_action, action_model)
-                print(f"Player {players[step].name} step_reward {player_step_reward}")
-                razdacha_cards = Razdaza(self.PLAY_DECK, self.CARDS_4PLAYER, self.GAME_FIELD, self.BITA, self.START_DECK)
+                razdacha_cards = Razdaza(self.PLAY_DECK, self.CARDS_4PLAYER, self.GAME_FIELD, self.BITA, self.START_DECK, self.PRINT_OUT)
 
                 if (players[step] != 0).sum().sum() < self.CARDS_4PLAYER:
                     players, self.PLAY = razdacha_cards(players)
@@ -385,13 +395,13 @@ class Make_game:
                 self.PLAY = False
                 break
             cycle += 1
-            print()
+            if self.PRINT_OUT: print()
 
-        print()
+        if self.PRINT_OUT: print()
         winners = str()
         for player, state in zip(players, state_players):
             if state[1]: winners += player.name + ', '
-        print(f'Victory for {winners[:-2]}')
+        print(f'\nVictory for {winners[:-2]}')
         print()
 
         print('Checking cards')
@@ -408,7 +418,8 @@ class Make_game:
 
 
 class Durack:
-    def __init__(self, cards4player=None, humans=1, robots=1, img_path="images/", img_save_path = "", make_gif = False):
+    def __init__(self, cards4player=None, humans=1, robots=1, img_path="images/", 
+                 img_save_path = "", make_gif = False, print_out = True, plot_game = True):
         self.__humans = humans
         self.__robots = robots
         self.__CARDS_4PLAYER = cards4player
@@ -426,22 +437,27 @@ class Durack:
         self.__MINCARDS_4PLAYER = 2
         self.__MIN_PLAYERS = 2
         self.img_save_path = img_save_path
+        self.PRINT_OUT = print_out
+        self.PLOT_GAME = plot_game
 
-        self.game_process = Make_game(self.__CARDS_4PLAYER, self.__MUSTY, self.__TYPECARD_KEYS, 
-                                      self.__IDX_MUSTY, self.__IDX_TYPECARDS, self.__base_deck, 
-                                      img_path, img_save_path, make_gif)
+        self.game_process = Make_game(self.__CARDS_4PLAYER, self.__MUSTY, self.__TYPECARD_KEYS,
+                                      self.__IDX_MUSTY, self.__IDX_TYPECARDS, self.__base_deck,
+                                      img_path, img_save_path, make_gif, print_out, plot_game)
 
     def init_game(self):
-        maker_players = Make_players(self.__CARDS_4PLAYER, self.__humans, self.__robots, self.__MINCARDS_4PLAYER, self.__MAXCARDS_4PLAYER, self.__MIN_PLAYERS, self.__DECK_SIZE, self.__START_FIELD)
+        maker_players = Maker_players(self.__CARDS_4PLAYER, self.__humans, self.__robots, 
+                                     self.__MINCARDS_4PLAYER, self.__MAXCARDS_4PLAYER, 
+                                     self.__MIN_PLAYERS, self.__DECK_SIZE, self.__START_FIELD,
+                                     self.PRINT_OUT)
+        
         players, self.__CARDS_4PLAYER = maker_players()
-        print()
+        if self.PRINT_OUT:
+            print()
+            print([player.name for player in players])
+            print("rand - robot with random choice of possible cards for the move")
+            print("min - robot chooses the minimum possible card for the move \n")
+            print("Dealing cards:")
 
-        print([player.name for player in players])
-        print("rand - robot with random choice of possible cards for the move")
-        print("min - robot chooses the minimum possible card for the move ")
-        print()
-
-        print("Dealing cards:")
         trump = random.choice(self.__MUSTY)
         START_deck = self.__base_deck.copy().astype(int)
         START_deck.loc[trump] = START_deck.loc[trump] * 100
@@ -450,124 +466,11 @@ class Durack:
         BITA = self.__START_FIELD.copy().astype(int)
         GAME_FIELD = self.__START_FIELD.copy().astype(int)
 
-        deal_cards = Razdaza(PLAY_deck, self.__CARDS_4PLAYER, GAME_FIELD, BITA, START_deck)
+        deal_cards = Razdaza(PLAY_deck, self.__CARDS_4PLAYER, GAME_FIELD, BITA, START_deck, self.PRINT_OUT)
 
         players, play = deal_cards(players)
-        print()
-        print(f'Trump suit is {trump}')
-        print()
+        if self.PRINT_OUT: print(f'\nTrump suit is {trump}\n')
+        else: print(f'\rTrump suit is {trump}', end='')
+
 
         return players, PLAY_deck, trump
-
-
-class Make_players:
-    def __init__(self, cards4plaer, humans, robots, mincars4plaer, maxcars4plaer, minplaers, sizecoloda, startpole, get_human_name = False):
-        self.MAX_PLAYERS = None
-        self.CARDS_4PLAYER = cards4plaer
-        self.humans = humans
-        self.get_human_name = get_human_name
-        self.robots = robots
-        self.MINCARDS_4PLAER = mincars4plaer
-        self.MAXCARDS_4PLAER = maxcars4plaer
-        self.MIN_PLAYERS = minplaers
-        self.QQUANTY_COLODA = sizecoloda
-        self.START_pole = startpole
-
-    def __call__(self):
-        players, cards4plaer = self.make_players(self.get_human_name)
-        return players, cards4plaer
-
-    @property
-    def opros(self):
-        err_h = True
-        err_r = True
-        err_cards = True
-
-        while err_cards:
-            if not self.CARDS_4PLAYER:
-                try:
-                    self.CARDS_4PLAYER = int(input(f"Specify the number of cards dealt from {self.MINCARDS_4PLAER} to {self.MAXCARDS_4PLAER} inclusive: "))
-                    if self.MINCARDS_4PLAER <= self.CARDS_4PLAYER <= self.MAXCARDS_4PLAER:
-                        err_cards = False
-                except ValueError:
-                    print("Error, specify the number of cards")
-            else:
-                if isinstance(self.CARDS_4PLAYER, int):
-                    err_cards = False
-                else:
-                    print("Error, specify the number of cards")
-                    self.CARDS_4PLAYER = None
-
-        self.MAX_PLAYERS = self.QQUANTY_COLODA // self.CARDS_4PLAYER
-
-        while err_h and err_r:
-            print(f"The number of participants (robots and humans) should be in total not less than {self.MIN_PLAYERS} and not more than {self.MAX_PLAYERS}")
-            while err_h:
-                if not self.humans and self.humans != 0:
-                    try:
-                        self.humans = int(input('Enter the number of human players: '))
-                        err_h = False
-                    except ValueError:
-                        print("Error, specify the number of humans")
-                else:
-                    if isinstance(self.humans, int):
-                        print(f'The number of humans is already set - {self.humans}')
-                        err_h = False
-                    else:
-                        print("Error, specify the number of humans")
-                        self.humans = None
-
-            while err_r:
-                if not self.robots and self.robots != 0:
-                    try:
-                        self.robots = int(input('Enter the number of robot players: '))
-                        err_r = False
-                    except ValueError:
-                        print("Error, specify the number of robots")
-                else:
-                    if isinstance(self.robots, int):
-                        print(f'The number of robots is already set - {self.robots}')
-                        err_r = False
-                    else:
-                        print("Error, specify the number of robots")
-                        self.robots = None
-
-
-                if self.humans + self.robots > self.MAX_PLAYERS or self.humans + self.robots < self.MIN_PLAYERS:
-                    print(f'Error, the total number of players specified is not in the range {self.MIN_PLAYERS} - {self.MAX_PLAYERS}')
-                    err_h = True
-                    err_r = True
-                    if self.humans == 0 and self.robots == 0:
-                        self.humans = None
-                        self.robots = None
-
-        return self.humans, self.robots, self.CARDS_4PLAYER
-
-    def make_player(self, robot=True, number=0, get_human_name = False):
-        player = self.START_pole.copy().astype(int)
-        if robot:
-            style = random.choice(('min', 'rand'))
-            player.name = f'Robot_{number}({style})'
-        else:
-            if get_human_name:
-               player.name = input('Enter the human player name: ').title()
-            else:  player.name = f'Human_{number}'
-        return player
-
-    def make_players(self, get_human_name = False):
-
-        hum, rob, cards4plaer = self.opros
-        players = []
-
-        if hum:
-            for j in range(hum):
-                if get_human_name:
-                    print(f'Player {j + 1}:')
-                    players.append(self.make_player(robot=False, get_human_name = get_human_name))
-                else:
-                    players.append(self.make_player(robot=False, number=j + 1, get_human_name = get_human_name))
-        if rob:
-            for i in range(rob):
-                players.append(self.make_player(number=i + 1))
-
-        return players, cards4plaer
