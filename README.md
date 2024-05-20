@@ -15,7 +15,7 @@ This project implements the classic Russian card game "Durak" (Fool). The game i
 
 ## Getting Started
 
-Check in [colab](https://colab.research.google.com/github/Mike030668/Base_Fool_images/blob/master/play_fool.ipynb)
+Check in [colab](https://colab.research.google.com/gist/Mike030668/499b9e371ff373658a1819719e12b80a/play_fool.ipynb)
 
 ### Prerequisites
 
