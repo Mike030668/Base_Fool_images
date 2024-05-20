@@ -12,7 +12,9 @@ import PIL
 import time
 
 class Make_game:
-    def __init__(self, cards4player, suits, typecard_keys, idx_suits, idx_typecards, startdeck, img_path="images/", img_save_path=""):
+    def __init__(self, cards4player, suits, typecard_keys, idx_suits, idx_typecards,
+                 startdeck, img_path="images/", img_save_path="", make_gif = False,
+                 print_out = True, plot_game = True):
         self.CARDS_4PLAYER = cards4player
         self.SUITS = suits
         self.TYPECARD_KEYS = typecard_keys
@@ -30,6 +32,9 @@ class Make_game:
         self.PLAY_DECK = self.START_DECK.copy()
         self.TRUMP = None  # Initialize TRUMP
         self.frames = []  # To store frames for GIF
+        self.MAKE_GIF = make_gif
+        self.PRINT_OUT = print_out
+        self.PLOT_GAME = plot_game
 
     def __call__(self, players, playdeck, trump):
         self.TRUMP = trump  # Set TRUMP when game starts
@@ -62,12 +67,11 @@ class Make_game:
                     ax.imshow(img, extent=[start_x + col * 1.2, start_x + (col + 1) * 1.2, start_y - row * 2, start_y - row * 2 + 1.8])
                 else:
                     print(f"Image file {card_file} not found")
-        self.save2gif = False
         self.fig_size = fig_size
         human_cards_y_start = 0.2
         robot_cards_y_start = 6
 
-        human_cards = self.show_cards(players[1], show=show)
+        human_cards = self.show_cards(players[0], show=show)
         y_add = 0
         # updaate
         if len(human_cards) > 9:
@@ -76,7 +80,7 @@ class Make_game:
             robot_cards_y_start += y_add
             self.fig_size = (self.fig_size[0], self.fig_size[1] + y_add)
 
-        robot_cards = self.show_cards(players[0], show=False)
+        robot_cards = self.show_cards(players[1], show=False)
         if len(robot_cards) > 9:
             y_add+=2
             human_cards_y_start += y_add
@@ -121,21 +125,22 @@ class Make_game:
             else:
                 print(f"Deck image file {deck_img_path} not found")
 
-        if not len(self.IMG_SAVE_PATH):
+        if self.PLOT_GAME:
             clear_output(True)
             plt.show()
-        else:
-            self.save2gif = True
+
+        # Save frame for GIF
+        if self.IMG_SAVE_PATH:
             fig.savefig(self.IMG_SAVE_PATH, bbox_inches='tight', pad_inches=0)   # save the figure to file
             plt.close(fig)    # close the figure window
-
-            # Save frame for GIF
-            frame = imageio.imread(self.IMG_SAVE_PATH)
+        # Save frame for GIF
+        if self.MAKE_GIF:
+            frame = imageio.v2.imread(self.IMG_SAVE_PATH)
             frame = PIL.Image.fromarray(frame).resize(gif_size)
             self.frames.append(frame)
 
     def save_gif(self, gif_path="game_play.gif", duration=300):
-        if self.save2gif:
+        if self.MAKE_GIF:
             imageio.mimsave(gif_path, self.frames, duration=duration)
         else: pass
 
@@ -162,7 +167,7 @@ class Make_game:
             vibor.replace(np.nan, 0, inplace=True)
         return vibor
 
-    def human_step(self, player, qty_card, value_card, model):
+    def human_step(self, player, qty_card, value_card, action_model):
         attempt = min(2, qty_card)
         try_card = True
         vibor = self.vibor_card(player, value_card)
@@ -170,17 +175,22 @@ class Make_game:
         for_choose = self.show_cards(player, False)
         available = self.show_cards(vibor, False)
         step_reward = 0
-        if model != None:
-            print(f"Used human model {model.__name__ }")
-        else: print(f"Hhuman avswer")
+        if self.PRINT_OUT:
+            if action_model != None:
+                print(f"Used human model ")
+            else:
+                print(f"Human avswer")
 
         while try_card and schet < attempt + 1:
 
-            if model == None:
+            if action_model == None:
                 print(f'Player {player.name}, your move, you have {attempt - schet + 1} attempts left current reward {step_reward}')
-                step = input('Enter card number or zero to skip: ')
+                time.sleep(2)
+                step = input('\nEnter card number or zero to skip: ')
+
+
             else:
-                step =  model()
+                step =  action_model
 
             if step == 'stop':
                 print(f'Player {player.name} stopped the game')
@@ -192,26 +202,26 @@ class Make_game:
                     step = int(step)
                     if not step:
                         try_card = False
+                        step_reward -= 1
                         return step, step, step_reward
                     elif step in np.arange(1, qty_card + 1):
                         try_card = False
                     else:
                         schet += 1
                         step_reward -= 1
-                        step_reward -= 1
-                        print("step_reward -= 1", step_reward)
-                        print(f'{player.name}, you entered an invalid card number, please be more careful, your step_reward {step_reward}')
+                        if self.PRINT_OUT:
+                            print(f'{player.name}, you entered an invalid card number, please be more careful, your step_reward {step_reward}')
                 except ValueError:
                     print(f'{player.name}, a card number or space to skip is required, please be more careful')
                     schet += 1
                     step_reward -= 1
-                    print("step_reward -= 1", step_reward)
 
-            print("step_reward", step_reward)
+
             if not try_card:
                 if vibor.sum().sum() == 0:
-                    print(f'{player.name}, unfortunately, you do not have a valid move')
                     step_reward -= 1
+                    if self.PRINT_OUT:
+                        print(f'{player.name}, unfortunately, you do not have a valid move')
                     return 0, 0, step_reward
                 else:
                     hod = for_choose[step - 1]
@@ -220,7 +230,8 @@ class Make_game:
                     available = [[av[0], av[1]] for av in available]
 
                     if [step_suit, step_typecards] in available:
-                        print(f'{player.name}, your move {step_suit} {step_typecards} is accepted, your step_reward {step_reward}')
+                        if self.PRINT_OUT:
+                            print(f'{player.name}, your move {step_suit} {step_typecards} is accepted, your step_reward {step_reward}')
                         try_card = False
                         return step_suit, step_typecards, step_reward
                     else:
@@ -228,7 +239,7 @@ class Make_game:
                         step_reward -= 1
             else:
                 pass
-        print(f'{player.name}, you have used up your {attempt + 1} attempts')
+
         return 0, 0, step_reward
 
     def random_step(self, player, value_card=0, step_reward = 0):
@@ -260,22 +271,23 @@ class Make_game:
         i = random.randint(0, len(idx) - 1)
         return vibor.index[idx[i]], vibor.columns[jdx[i]]
 
-    def step_player(self, player, type_player='human', model = None):
+    def step_player(self, player, type_player='human', action_model = None):
         qty_card = (player != 0).sum().sum()
-        print("type_player", type_player)
+
 
         if type_player == 'human':
-            print()
-            print(f'Your move, {player.name}')
-            m, t, step_reward = self.human_step(player, qty_card, 0, model)
+            if self.PRINT_OUT: print(f'Your move, {player.name}')
+            else: print(f'\rYour move, {player.name}', end='')
+            m, t, step_reward = self.human_step(player, qty_card, 0, action_model)
             if m == 0 and t == 0:
-                print(f'Player {player.name} skipped the move')
+                if self.PRINT_OUT: print(f'Player {player.name} skipped the move')
+                else: print(f'\rPlayer {player.name} skipped the move', end='')
                 return player, step_reward
 
         if type_player == 'robot':
             m, t, step_reward = self.random_step(player)
-
-        print(f'{player.name} made a move {m}_{t}')
+        if self.PRINT_OUT: print(f'{player.name} made a move {m}_{t}')
+        else: print(f'\r{player.name} made a move {m}_{t}', end='')
         idx_s = self.SUITS.index(m)
         idx_t = self.TYPECARD_KEYS.index(t)
 
@@ -283,7 +295,7 @@ class Make_game:
         player.iloc[idx_s, idx_t] = 0
         return player, step_reward
 
-    def answer_player(self, player, type_player='human', model = None):
+    def answer_player(self, player, type_player='human', action_model = None):
         [a], [b] = np.where(self.GAME_FIELD.applymap(lambda x: x != 0))
         value_card = self.GAME_FIELD.iloc[a][b]
         qty_plcard = (player != 0).sum().sum()
@@ -292,17 +304,20 @@ class Make_game:
             m, t, step_reward = self.random_step(player, value_card)
 
         if type_player == 'human':
-            print()
-            print(f'On the field: {self.SUITS[a]} {self.TYPECARD_KEYS[b]}')
-            m, t, step_reward = self.human_step(player, qty_plcard, value_card, model)
+            if self.PRINT_OUT:  print(f'\nOn the field: {self.SUITS[a]} {self.TYPECARD_KEYS[b]}')
+            else: print(f'\rOn the field: {self.SUITS[a]} {self.TYPECARD_KEYS[b]}', end='')
+            m, t, step_reward = self.human_step(player, qty_plcard, value_card, action_model)
 
         if m == 0 and t == 0:
-            print(f'Player {player.name} takes the card and skips the move')
+            if self.PRINT_OUT: print(f'Player {player.name} takes the card and skips the move')
+            else: print(f'\rPlayer {player.name} takes the card and skips the move', end='')
             player.iloc[a][b] = self.GAME_FIELD.iloc[a][b]
             self.GAME_FIELD.iloc[a][b] = 0
             state = False
         else:
-            print(f'Player {player.name} responds with {m}_{t}')
+            if self.PRINT_OUT:  print(f'Player {player.name} responds with {m}_{t}')
+            else: print(f'\rPlayer {player.name} responds with {m}_{t}', end='')
+
             idx_s = self.SUITS.index(m)
             idx_t = self.TYPECARD_KEYS.index(t)
             self.BITA.iloc[idx_s, idx_t] = player.iloc[idx_s, idx_t]
@@ -313,14 +328,14 @@ class Make_game:
 
         return player, state, step_reward
 
-    def action_player(self, player, state_player, type_action, model = None):
+    def action_player(self, player, state_player, type_action, action_model = None):
         type_player = self.get_type(player)
         if type_action:
-            player, step_reward  = self.step_player(player, type_player, model)
+            player, step_reward  = self.step_player(player, type_player, action_model)
             if not state_player[0]:
                 state_player[0] = True
         else:
-            player, state_player[0], step_reward = self.answer_player(player, type_player, model)
+            player, state_player[0], step_reward = self.answer_player(player, type_player, action_model)
         state_player[1] = self.fin_play(player)
         return player, state_player, step_reward
 
@@ -328,7 +343,7 @@ class Make_game:
         set_player = player.sum().sum()
         set_deck = self.PLAY_DECK.sum().sum()
         if not set_player and not set_deck:
-            print(f'Player {player.name} finished the game')
+            print(f'\nPlayer {player.name} finished the game')
             return True
         else:
             return False
@@ -347,7 +362,7 @@ class Make_game:
         state_players = self.make_states(players)
 
         while self.PLAY:
-            print('Cycle ', cycle)
+            if self.PRINT_OUT:  print('Cycle ', cycle)
             step = 0
             while step < qty_players and self.PLAY:
                 if fin: fin += 1
@@ -355,11 +370,17 @@ class Make_game:
                     type_action = True
                 else:
                     type_action = False
-
+                if self.PRINT_OUT: print()
                 self.display_game_state(players, self.GAME_FIELD, self.BITA, self.PLAY_DECK, self.TRUMP)
-                players[step], state_players[step], player_step_reward = self.action_player(players[step], state_players[step], type_action, model)
-                print(f"Player {players[step].name} step_reward {player_step_reward}")
-                razdacha_cards = Razdaza(self.PLAY_DECK, self.CARDS_4PLAYER, self.GAME_FIELD, self.BITA, self.START_DECK)
+
+                if  self.get_type(players[step]) =="human" and model != None:
+                    action_model = model()
+
+                else:
+                    action_model = None
+
+                players[step], state_players[step], player_step_reward = self.action_player(players[step], state_players[step], type_action, action_model)
+                razdacha_cards = Razdaza(self.PLAY_DECK, self.CARDS_4PLAYER, self.GAME_FIELD, self.BITA, self.START_DECK, self.PRINT_OUT)
 
                 if (players[step] != 0).sum().sum() < self.CARDS_4PLAYER:
                     players, self.PLAY = razdacha_cards(players)
@@ -376,13 +397,13 @@ class Make_game:
                 self.PLAY = False
                 break
             cycle += 1
-            print()
+            if self.PRINT_OUT: print()
 
-        print()
+        if self.PRINT_OUT: print()
         winners = str()
         for player, state in zip(players, state_players):
             if state[1]: winners += player.name + ', '
-        print(f'Victory for {winners[:-2]}')
+        print(f'\nVictory for {winners[:-2]}')
         print()
 
         print('Checking cards')
@@ -396,6 +417,7 @@ class Make_game:
             print(df.name)
             print(df.head(10).to_string())
             print()
+
 
 
 class Durack:
