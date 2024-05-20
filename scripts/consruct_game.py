@@ -129,12 +129,11 @@ class Make_game:
         if self.PLOT_GAME:
             clear_output(True)
             plt.show()
-        else:
-            fig.savefig(self.IMG_SAVE_PATH, bbox_inches='tight', pad_inches=0)   # save the figure to file
-            plt.close(fig)    # close the figure window
 
         # Save frame for GIF
         if self.MAKE_GIF:
+            fig.savefig(self.IMG_SAVE_PATH, bbox_inches='tight', pad_inches=0)   # save the figure to file
+            plt.close(fig)    # close the figure window
             frame = imageio.v2.imread(self.IMG_SAVE_PATH)
             frame = PIL.Image.fromarray(frame).resize(gif_size)
             self.frames.append(frame)
