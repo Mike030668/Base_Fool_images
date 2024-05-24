@@ -30,3 +30,6 @@ Check in [colab](https://colab.research.google.com/gist/Mike030668/499b9e371ff37
    git clone https://github.com/yourusername/durak-card-game.git
    cd durak-card-game
 
+### SAMPLES
+#### 2 robots on ruls
+<img src="images/game_play_2_robots.gif" alt="gif"  width="270"/> <img src="images/game_play_2_robots_1.gif" alt="gif"  width="270"/>
