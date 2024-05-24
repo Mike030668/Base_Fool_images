@@ -32,7 +32,10 @@ Check in [colab](https://colab.research.google.com/gist/Mike030668/499b9e371ff37
 
 ### SAMPLES
 #### 2 robots on rules
-<img src="images/game_play_2_robots.gif" alt="gif"  width="470"/> <img src="images/game_play_2_robots_1.gif" alt="gif"  width="470"/>
+<img src="images/game_play_2_robots.gif" alt="gif"  width="370"/> <img src="images/game_play_2_robots_1.gif" alt="gif"  width="370"/>
 
-#### robot on rules ans rand modle
-<img src="images/game_play_randmodel_robot_1.gif" alt="gif"  width="470"/> <img src="images/game_play_randmodel_robot_2.gif" alt="gif"  width="470"/>
+#### robot on rules and rand modle
+<img src="images/game_play_randmodel_robot.gif" alt="gif"  width="370"/> <img src="images/game_play_randmodel_robot_2.gif" alt="gif"  width="370"/>
+
+#### robot on rules and human
+<img src="images/game_play_human_robot.gif" alt="gif"  width="570"/>
