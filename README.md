@@ -31,5 +31,8 @@ Check in [colab](https://colab.research.google.com/gist/Mike030668/499b9e371ff37
    cd durak-card-game
 
 ### SAMPLES
-#### 2 robots on ruls
-<img src="images/game_play_2_robots.gif" alt="gif"  width="270"/> <img src="images/game_play_2_robots_1.gif" alt="gif"  width="270"/>
+#### 2 robots on rules
+<img src="images/game_play_2_robots.gif" alt="gif"  width="470"/> <img src="images/game_play_2_robots_1.gif" alt="gif"  width="470"/>
+
+#### robot on rules ans rand modle
+<img src="images/game_play_randmodel_robot_1.gif" alt="gif"  width="470"/> <img src="images/game_play_randmodel_robot_2.gif" alt="gif"  width="470"/>
