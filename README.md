@@ -30,7 +30,7 @@ Check in [colab](https://colab.research.google.com/gist/Mike030668/499b9e371ff37
    git clone https://github.com/yourusername/durak-card-game.git
    cd durak-card-game
 
-### SAMPLES
+### SAMPLES OF GAMES
 #### 2 robots on rules
 <img src="images/game_play_2_robots.gif" alt="gif"  width="370"/> <img src="images/game_play_2_robots_1.gif" alt="gif"  width="370"/>
 
@@ -39,3 +39,6 @@ Check in [colab](https://colab.research.google.com/gist/Mike030668/499b9e371ff37
 
 #### robot on rules and human
 <img src="images/game_play_human_robot.gif" alt="gif"  width="570"/>
+
+### SAMPLES OF RL TRAIN
+[RL FOOL](https://github.com/Mike030668/MIPT_magistratura/tree/main/RL/FINAL/DZ_3)
